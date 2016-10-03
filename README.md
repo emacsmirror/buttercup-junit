@@ -1,5 +1,7 @@
-<!-- [![MELPA Stable](http://stable.melpa.org/packages/buttercup-junit-badge.svg)](http://stable.melpa.org/#/buttercup-junit) -->
-<!-- [![MELPA](http://melpa.org/packages/buttercup-junit-badge.svg)](http://melpa.org/#/buttercup-junit)  -->
+<!-- 
+[![MELPA Stable](http://stable.melpa.org/packages/buttercup-junit-badge.svg)](http://stable.melpa.org/#/buttercup-junit)
+[![MELPA](http://melpa.org/packages/buttercup-junit-badge.svg)](http://melpa.org/#/buttercup-junit)  
+-->
 
 # buttercup-junit - JUnit XML reports from buttercup results
 
@@ -14,7 +16,6 @@ buttercup-junit was originally conceived to facilitate [CI][CI] testing on
 http://shippable.com.
 
 [BUTTERCUP]: https://github.com/jorgenschaefer/emacs-buttercup
-[ERTMANUAL]: https://www.gnu.org/software/emacs/manual/html_node/ert/index.html "ert online manual"
 [JUNIT]: http://junit.org "JUnit Home"
 [JUNITXSD]: http://windyroad.com.au/dl/Open%20Source/JUnit.xsd "JUnit xsd"
 [CI]: http://en.wikipedia.org/wiki/Continuous_integration "Continous Integration on Wikipedia"
@@ -22,7 +23,7 @@ http://shippable.com.
 ## git repo
 
 buttercup-junit is hosted on [bitbucket.org][BITBUCKET]:
-https://bitbucket.org/olanilsson/ert-junit
+https://bitbucket.org/olanilsson/buttercup-junit
 
 Pull requests welcome.
 
@@ -43,7 +44,7 @@ buttercup-junit-run-discover will consume the following flags from
 `command-line-args-left` and pass the rest to
 `buttercup-run-discover`.
 
-    * `--xmlfile XMLFILE` - Write the report to XMLFILE.
-    * `--junit-stdout - Write the report both to file and stdout.
+ * `--xmlfile XMLFILE` - Write the report to XMLFILE.
+ * `--junit-stdout` - Write the report both to file and stdout.
 
 
