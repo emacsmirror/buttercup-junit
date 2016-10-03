@@ -1,8 +1,3 @@
-<!-- 
-[![MELPA Stable](http://stable.melpa.org/packages/buttercup-junit-badge.svg)](http://stable.melpa.org/#/buttercup-junit)
-[![MELPA](http://melpa.org/packages/buttercup-junit-badge.svg)](http://melpa.org/#/buttercup-junit)  
--->
-
 # buttercup-junit - JUnit XML reports from buttercup results
 
 buttercup-junit publishes buttercup test results as [JUnit][JUNIT] XML files.
@@ -46,5 +41,3 @@ buttercup-junit-run-discover will consume the following flags from
 
  * `--xmlfile XMLFILE` - Write the report to XMLFILE.
  * `--junit-stdout` - Write the report both to file and stdout.
-
-
