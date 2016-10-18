@@ -32,7 +32,7 @@
 ;;; Code:
 
 (require 'pcase)
-(require 'cl-lib)
+(or (require 'cl-lib nil t) (require 'cl))
 (require 'buttercup)
 
 (defgroup buttercup-junit nil
