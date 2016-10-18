@@ -5,6 +5,8 @@
 
 # buttercup-junit - JUnit XML reports from buttercup results
 
+[![CircleCI](https://circleci.com/bb/olanilsson/buttercup-junit/tree/master.svg?style=shield&circle-token=0114ae411116984dae168da481f600ef300e78e4)](https://circleci.com/bb/olanilsson/buttercup-junit/tree/master)
+
 buttercup-junit publishes buttercup test results as [JUnit][JUNIT] XML files.
 
 [Buttercup][BUTTERCUP] recommends running tests in batch mode
