@@ -19,10 +19,10 @@ JUNIT ?= buttercup-junit.xml
 cask-install:
 	$(CASK) install
 
-build:
+build: cask-install
 	$(CASK) build
 
-package:
+package: cask-install
 	$(CASK) package
 
 test: cask-install
