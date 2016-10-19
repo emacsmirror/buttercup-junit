@@ -6,7 +6,7 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 0.1
+;; Version: 0.1.0
 ;; Package-Requires: ((buttercup "1.6"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
@@ -27,12 +27,12 @@
 
 ;; Print buttercup test results to JUnit XML report files.
 ;;
-;; emacs -batch -l buttercup-junit -f buttercup-junit-run-discover [buttercup-options]
+;; emacs -batch -L . -f package-initialize -f buttercup-junit-run-discover [buttercup-options]
 
 ;;; Code:
 
 (require 'pcase)
-(require 'cl-lib)
+(or (require 'cl-lib nil t) (require 'cl))
 (require 'buttercup)
 
 (defgroup buttercup-junit nil
@@ -65,8 +65,8 @@
 		(unless (cdr flag)
 		  (error "Option requires argument: %s" (car flag)))
 		(setq xmlfile (cadr flag))
-		(setcdr xmlfile (cddr xmlfile))
-		(setq command-line-args-left (remove "--xmlfile" command-line-args-left))
+		(setcdr flag (cddr flag))
+		(setq command-line-args-left (remove* "--xmlfile" command-line-args-left :test #'string= :count 1))
 		(setq flag (member "--xmlfile" command-line-args-left))))
 	(when (member "--junit-stdout" command-line-args-left)
 	  (setq command-line-args-left (remove "--junit-stdout" command-line-args-left)
