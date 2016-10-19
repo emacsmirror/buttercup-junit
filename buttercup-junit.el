@@ -66,7 +66,7 @@
 		  (error "Option requires argument: %s" (car flag)))
 		(setq xmlfile (cadr flag))
 		(setcdr flag (cddr flag))
-		(setq command-line-args-left (cl-remove "--xmlfile" command-line-args-left :test #'string= :count 1))
+		(setq command-line-args-left (remove* "--xmlfile" command-line-args-left :test #'string= :count 1))
 		(setq flag (member "--xmlfile" command-line-args-left))))
 	(when (member "--junit-stdout" command-line-args-left)
 	  (setq command-line-args-left (remove "--junit-stdout" command-line-args-left)
