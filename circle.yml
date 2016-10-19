@@ -18,7 +18,7 @@ test:
             parallel: true
 deployment:
     bitbucket:
-        branch: /.*/
+        branch: master
         commands:
             - evm install --use emacs-25.1-travis
             - ci/publish.sh -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
