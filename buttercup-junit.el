@@ -6,7 +6,7 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 0.1.2
+;; Version: 0.2.0
 ;; Package-Requires: ((buttercup "1.5"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
@@ -56,6 +56,15 @@
 (defvar buttercup-junit--to-stdout nil
   "Whether to print the xml file to stdout as well.")
 
+(defvar buttercup-junit-master-suite nil
+  "An extra outer testsuite with this name is added to the report
+  if `buttercup-junit-master-suite' is set to a non-empty
+  string.")
+
+(defsubst buttercup-junit--nonempty-string-p (object)
+  "Return t if OBJECT is a non-empty string. "
+  (and (stringp object) (not (string= object ""))))
+
 (defun buttercup-junit--extract-argument-option (option)
   "Return the item following OPTION in `command-line-args-left'.
 OPTION is tyically a string `--option' that should be followed by
@@ -84,8 +93,10 @@ as the last item in `command-line-args-left'."
   (let ((buttercup-junit-result-file (or (buttercup-junit--extract-argument-option "--xmlfile")
 										 buttercup-junit-result-file))
 		(buttercup-junit--to-stdout (buttercup-junit--option-set "--junit-stdout"))
+		(buttercup-junit-master-suite (or (buttercup-junit--extract-argument-option "--outer-suite")
+										  buttercup-junit-master-suite))
 		(buttercup-reporter #'buttercup-junit-reporter))
-	  (buttercup-run-discover)))
+	(buttercup-run-discover)))
 
 (defsubst buttercup-junit--insert-at (marker &rest insert-args)
   "Go to MARKER, disable MARKER, and `insert' INSERT-ARGS."
@@ -102,9 +113,15 @@ as the last item in `command-line-args-left'."
 	 (with-current-buffer buttercup-junit--buffer
 	   (set-buffer-file-coding-system 'utf-8)
 	   (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-			   "<testsuites>\n"))
-	 (incf buttercup-junit--indent-level)
-	 )
+			   "<testsuites>\n")
+	   (incf buttercup-junit--indent-level)
+	   (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
+		 (insert (make-string buttercup-junit--indent-level ?\s)
+				 (format "<testsuite name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"0\" failures=\"0\" skipped=\"0\">\n"
+						 buttercup-junit-master-suite
+						 (format-time-string "%Y-%m-%d %T%z" (current-time)) ; timestamp
+						 (system-name)))
+		 (incf buttercup-junit--indent-level))))
 	;; suite-started -- A suite is starting. The argument is the suite.
 	;;  See `make-buttercup-suite' for details on this structure.
 	(`suite-started
@@ -175,11 +192,14 @@ as the last item in `command-line-args-left'."
 	(`buttercup-done
 	 (with-current-buffer buttercup-junit--buffer
 	   (decf buttercup-junit--indent-level)
+	   (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
+		 (insert (make-string buttercup-junit--indent-level ?\s) "</testsuite>\n")
+		 (decf buttercup-junit--indent-level))
 	   (insert (make-string buttercup-junit--indent-level ?\s)
 			   "</testsuites>\n")
 	   (when buttercup-junit--to-stdout
 		 (send-string-to-terminal (buffer-string)))
-	   (write-file buttercup-junit-result-file)))))  
+	   (write-file buttercup-junit-result-file)))))
 
 (provide 'buttercup-junit)
 ;;; buttercup-junit.el ends here

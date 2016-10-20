@@ -69,15 +69,18 @@
 	  (it "Removes two instances of --xmlfile FILE"
 		(setq command-line-args-left '("foo" "--xmlfile" "bar" "baz" "--xmlfile" "qux"))
 		(expect (buttercup-junit-run-discover) :to-have-same-items-as expected))
-
-
 	  ))
-	
+
   (it "Uses the argument of the last --xmlfile"
 	(spy-on 'buttercup-run-discover :and-call-fake (lambda () buttercup-junit-result-file))
 	(setq command-line-args-left '("foo" "--xmlfile" "bar" "baz" "--xmlfile" "qux"))
 	(expect (buttercup-junit-run-discover) :to-equal "qux"))
-	
+
+  (it "Does not mix up --xmlfile and --outer-suite"
+	(spy-on 'buttercup-run-discover :and-call-fake (lambda () buttercup-junit-result-file))
+	(setq command-line-args-left '("foo" "--xmlfile" "bar" "baz" "--xmlfile" "qux" "--outer-suite" "outer"))
+	(expect (buttercup-junit-run-discover) :to-equal "qux"))
+
   (describe "Removes --junit-stdout from command-line-args-left before calling buttercup-run-discover"
 	(it "Removes --junit-stdout when alone"
 	  (setq command-line-args-left '("--junit-stdout"))
@@ -91,8 +94,6 @@
 	(spy-on 'buttercup-run-discover :and-call-fake (lambda () buttercup-junit--to-stdout))
 	(expect (buttercup-junit-run-discover) :not :to-be nil))
   )
-  
+
 (provide 'test-buttercup-junit)
 ;;; test-buttercup-junit.el ends here
-
-
