@@ -6,7 +6,7 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 0.1.1
+;; Version: 0.1.2
 ;; Package-Requires: ((buttercup "1.5"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
@@ -56,25 +56,36 @@
 (defvar buttercup-junit--to-stdout nil
   "Whether to print the xml file to stdout as well.")
 
+(defun buttercup-junit--extract-argument-option (option)
+  "Return the item following OPTION in `command-line-args-left'.
+OPTION is tyically a string `--option' that should be followed by
+a mandatory option argument.  All pairs of `OPTION argument' will
+be removed from `command-line-args-left', and the argument of the
+last pari will be returned.  Throws an error If OPTION is found
+as the last item in `command-line-args-left'."
+  (let ((option-elt (member option command-line-args-left))
+		argument)
+	(while option-elt
+	  (unless (cdr option-elt)
+		(error "Option %s requires an argument" option))
+	  (setq argument (cadr option-elt))
+	  (setcdr option-elt (cddr option-elt))
+	  (setq command-line-args-left
+			(remove* option command-line-args-left :test #'string= :count 1))
+	  (setq option-elt (member option command-line-args-left)))
+	argument))
+
+(defun buttercup-junit--option-set (option)
+  "Check `command-line-args-left' for OPTION.  Remove any found."
+  (prog1 (member option command-line-args-left)
+	(setq command-line-args-left (remove option command-line-args-left))))
+
 (defun buttercup-junit-run-discover ()
-  (let ((flag (member "--xmlfile" command-line-args-left))
-		(xmlfile buttercup-junit-result-file)
-		buttercup-junit--to-stdout)
-	(while flag
-	  (when flag
-		(unless (cdr flag)
-		  (error "Option requires argument: %s" (car flag)))
-		(setq xmlfile (cadr flag))
-		(setcdr flag (cddr flag))
-		(setq command-line-args-left (remove* "--xmlfile" command-line-args-left :test #'string= :count 1))
-		(setq flag (member "--xmlfile" command-line-args-left))))
-	(when (member "--junit-stdout" command-line-args-left)
-	  (setq command-line-args-left (remove "--junit-stdout" command-line-args-left)
-			buttercup-junit--to-stdout t))
-	(let ((buttercup-reporter #'buttercup-junit-reporter)
-		  (buttercup-junit-result-file xmlfile))
-	  (buttercup-run-discover))
-  ))
+  (let ((buttercup-junit-result-file (or (buttercup-junit--extract-argument-option "--xmlfile")
+										 buttercup-junit-result-file))
+		(buttercup-junit--to-stdout (buttercup-junit--option-set "--junit-stdout"))
+		(buttercup-reporter #'buttercup-junit-reporter))
+	  (buttercup-run-discover)))
 
 (defsubst buttercup-junit--insert-at (marker &rest insert-args)
   "Go to MARKER, disable MARKER, and `insert' INSERT-ARGS."
@@ -172,3 +183,7 @@
 
 (provide 'buttercup-junit)
 ;;; buttercup-junit.el ends here
+;; Local Variables:
+;; byte-compile-warnings: (not cl-functions)
+;; tab-width: 4
+;; End:
