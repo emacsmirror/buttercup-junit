@@ -18,7 +18,7 @@ for ever in $evms; do
 	evm use emacs-${ever}-travis || exit 2
 	make build
 	[ -d ${CIRCLE_TEST_REPORTS:-reports}/$ever ] || mkdir -p ${CIRCLE_TEST_REPORTS:-reports}/$ever
-	make report JUNIT=${CIRCLE_TEST_REPORTS:-reports}/$ever/junit.xml
+	make report OUTER="Emacs ${ever}" JUNIT=${CIRCLE_TEST_REPORTS:-reports}/$ever/junit.xml
 done
 
 exit ${errcount:-0}

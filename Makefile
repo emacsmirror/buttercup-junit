@@ -31,7 +31,7 @@ test: cask-install
 report: $(JUNIT)
 
 $(JUNIT): cask-install
-	$(CASK) exec $(EMACS) $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT)
+	$(CASK) exec $(EMACS) $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT) $(if $(OUTER),--outer-suite "$(OUTER)")
 
 clean:
 	$(CASK) clean-elc
