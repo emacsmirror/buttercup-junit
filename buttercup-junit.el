@@ -6,7 +6,7 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 0.2.0
+;; Version: 0.3.0
 ;; Package-Requires: ((buttercup "1.5"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
@@ -167,11 +167,15 @@ as the last item in `command-line-args-left'."
 									   (format "%f"
 											   (float-time (time-subtract (current-time)
 																		  start-time))))))
-	   (when (equal (buttercup-spec-status arg) 'failed)
-		 (insert "\n" (make-string buttercup-junit--indent-level ?\s)
-				 "<failed message=\"test\" type=\"type\">"
-				 (buttercup-spec-failure-description arg)
-				 "</failed>\n"))
+	   (pcase (buttercup-spec-status arg)
+		 (`failed
+		  (insert "\n" (make-string buttercup-junit--indent-level ?\s)
+				  "<failed message=\"test\" type=\"type\">"
+				  (buttercup-spec-failure-description arg)
+				  "</failed>\n"))
+		 (`pending
+		  (insert "\n" (make-string buttercup-junit--indent-level ?\s)
+				  "<skipped/>\n")))
 	   (decf buttercup-junit--indent-level)
 	   (insert (if (bolp) (make-string buttercup-junit--indent-level ?\s) "") "</testcase>\n")))
 	;; suite-done -- A suite has finished. The argument is the spec.
