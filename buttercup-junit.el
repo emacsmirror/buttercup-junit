@@ -102,6 +102,14 @@ as the last item in `command-line-args-left'."
 	(setq command-line-args-left (remove option command-line-args-left))))
 
 (defun buttercup-junit-run-discover ()
+  "Execute `buttercup-run-discover' with `buttercup-junit-reporter' set.
+The JUnit report will be written to the file specified by
+`buttercup-junit-result-file', and to stdout if
+`buttercup-junit-to-stdout' is non-nil.  If
+`buttercup-junit-master-suite' is set a wrapper testsuite of that
+name will be added.  These variables can be overriden by the
+options `--xmlfile XMLFILE', `--junit-stdout', and `--outer-suite
+SUITE' in `commandline-args-left'"
   (let ((buttercup-junit-result-file (or (buttercup-junit--extract-argument-option "--xmlfile")
 										 buttercup-junit-result-file))
 		(buttercup-junit--to-stdout (buttercup-junit--option-set "--junit-stdout"))
@@ -117,7 +125,12 @@ as the last item in `command-line-args-left'."
   (apply #'insert insert-args))
 
 (defun buttercup-junit-reporter (event arg)
-  "Reporter of EVENT ARG."
+  "Insert JUnit tags into the `*junit*' buffer according to EVENT and ARG.
+See `buttercup-reporter' for documentation on the values of EVENT
+and ARG.  A new output buffer is created on the
+`buttercup-started' event, and its contents are written to
+`buttercup-junit-result-file' and possibly stdout on the
+`buttercup-done' event."
   (pcase event
 	;;buttercup-started -- The test run is starting. The argument is a list of suites this run will execute.
 	(`buttercup-started
@@ -156,7 +169,7 @@ as the last item in `command-line-args-left'."
 		 (incf buttercup-junit--indent-level)
 		 (push (list arg failures errors time (current-time)) buttercup-junit--state-stack)
 		 )))
-	;; spec-started -- A spec in is starting. The argument is the spec.
+	;; spec-started -- A spec is starting. The argument is the spec.
 	;;   See `make-buttercup-spec' for details on this structure.
 	(`spec-started
 	 (with-current-buffer buttercup-junit--buffer
