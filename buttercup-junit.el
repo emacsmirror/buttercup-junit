@@ -243,7 +243,8 @@ and ARG.  A new output buffer is created on the
 			   "</testsuites>\n")
 	   (when buttercup-junit--to-stdout
 		 (send-string-to-terminal (buffer-string)))
-	   (write-file buttercup-junit-result-file)))))
+	   (when buttercup-junit-result-file
+		 (write-file buttercup-junit-result-file))))))
 
 (provide 'buttercup-junit)
 ;;; buttercup-junit.el ends here
