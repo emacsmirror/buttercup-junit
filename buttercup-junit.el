@@ -112,11 +112,26 @@ options `--xmlfile XMLFILE', `--junit-stdout', and `--outer-suite
 SUITE' in `commandline-args-left'"
   (let ((buttercup-junit-result-file (or (buttercup-junit--extract-argument-option "--xmlfile")
 										 buttercup-junit-result-file))
-		(buttercup-junit--to-stdout (buttercup-junit--option-set "--junit-stdout"))
+		(buttercup-junit--to-stdout (or (buttercup-junit--option-set "--junit-stdout")
+										buttercup-junit--to-stdout))
 		(buttercup-junit-master-suite (or (buttercup-junit--extract-argument-option "--outer-suite")
 										  buttercup-junit-master-suite))
 		(buttercup-reporter #'buttercup-junit-reporter))
 	(buttercup-run-discover)))
+
+(defun buttercup-junit-at-point (&optional outer)
+  (interactive "souter: ")
+  (let ((command-line-args-left (list "--xmlfile" buttercup-junit-result-file)))
+	(when outer
+	  (setq command-line-args-left (append command-line-args-left
+										   (list "--outer-suite" outer))))
+	(let ((buttercup-junit-result-file (or (buttercup-junit--extract-argument-option "--xmlfile")
+										   buttercup-junit-result-file))
+		  (buttercup-junit--to-stdout (buttercup-junit--option-set "--junit-stdout"))
+		  (buttercup-junit-master-suite (or (buttercup-junit--extract-argument-option "--outer-suite")
+											buttercup-junit-master-suite))
+		  (buttercup-reporter #'buttercup-junit-reporter))
+	   (buttercup-run-at-point))))
 
 (defsubst buttercup-junit--insert-at (marker &rest insert-args)
   "Go to MARKER, disable MARKER, and `insert' INSERT-ARGS."
