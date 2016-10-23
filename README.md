@@ -10,9 +10,9 @@ does the same, but writes the test results to a [JUnit][JUNIT]
 compatible [XML-file][JUNITXSD].
 
 buttercup-junit was originally conceived to facilitate [CI][CI] testing on
-http://shippable.com.
+http://shippable.com and http://circleci.com.
 
-[BUTTERCUP]: https://github.com/jorgenschaefer/emacs-buttercup
+[BUTTERCUP]: https://github.com/jorgenschaefer/emacs-buttercup "Emacs Buttercup"
 [JUNIT]: http://junit.org "JUnit Home"
 [JUNITXSD]: http://windyroad.com.au/dl/Open%20Source/JUnit.xsd "JUnit xsd"
 [CI]: http://en.wikipedia.org/wiki/Continuous_integration "Continous Integration on Wikipedia"
@@ -35,7 +35,7 @@ https://bitbucket.org/olanilsson/buttercup-junit/issues
 ## buttercup-junit-run-discover ()
 
 A wrapper around `buttercup-run-discover` that sets
-`buttercup-reporter` to also output results to `results.xml`.  
+`buttercup-reporter` to also output results to `results.xml`.
 
 buttercup-junit-run-discover will consume the following flags from
 `command-line-args-left` and pass the rest to
@@ -43,3 +43,8 @@ buttercup-junit-run-discover will consume the following flags from
 
  * `--xmlfile XMLFILE` - Write the report to XMLFILE.
  * `--junit-stdout` - Write the report both to file and stdout.
+ * `--outer-suite SUITE` - Add an outer testsuite SUITE to the report.
+
+# More indformation about the JUnit format
+
+ * http://help.catchsoftware.com/display/ET/JUnit+Format
