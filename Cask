@@ -8,4 +8,5 @@
 (files "*.el" (:exclude "*-autoload*.el" ".dir-locals.el"))
 
 (development
- (depends-on "buttercup"))
+ (depends-on "buttercup")
+ (depends-on "esxml"))
