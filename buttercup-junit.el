@@ -209,10 +209,19 @@ and ARG.  A new output buffer is created on the
 																		  start-time))))))
 	   (pcase (buttercup-spec-status arg)
 		 (`failed
-		  (insert "\n" (make-string buttercup-junit--indent-level ?\s)
-				  "<failed message=\"test\" type=\"type\">"
-				  (buttercup-spec-failure-description arg)
-				  "</failed>\n"))
+		  (let ((desc (buttercup-spec-failure-description arg)))
+			(cond ((stringp desc)
+				   (insert "\n" (make-string buttercup-junit--indent-level ?\s)
+						   "<failed message=\"test\" type=\"type\">"
+						   desc
+						   "</failed>\n"))
+				  ((and (listp desc)
+						(eq (car desc) 'error))
+				   (insert "\n" (make-string buttercup-junit--indent-level ?\s)
+						   "<error message=\"test\" type=\"type\">")
+				   (pp desc buttercup-junit--buffer)
+				   (insert "</error>\n"))
+				  )))
 		 (`pending
 		  (insert "\n" (make-string buttercup-junit--indent-level ?\s)
 				  "<skipped/>\n")))
