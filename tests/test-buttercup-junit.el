@@ -24,7 +24,11 @@
 
 ;;; Code:
 
+;(require 'cl-lib)
 (require 'buttercup)
+(require 'buttercup-junit)
+(require 'esxml)
+(require 'utils-test-buttercup-junit)
 
 (describe "Calling buttercup-junit-run-discover"
   :var (command-line-args-left buttercup-junit-result-file buttercup-junit--to-stdout)
@@ -94,6 +98,80 @@
 	(spy-on 'buttercup-run-discover :and-call-fake (lambda () buttercup-junit--to-stdout))
 	(expect (buttercup-junit-run-discover) :not :to-be nil))
   )
+
+(defun esxml-buttercup-junit-suite (&rest suites)
+  "Run buttercup-junit on SUITES, and convert the JUnit XML to esxml."
+  (let ((buttercup-reporter #'buttercup-junit-reporter))
+	(let ((buttercup-junit-result-file nil))
+	  (let (buttercup-suites
+			(lexical-binding t))
+		(dolist (suite suites)
+		  (eval suite))
+		(buttercup-run)))
+	(with-current-buffer buttercup-junit--buffer
+	  (xml-to-esxml (buffer-string)))))
+
+(defvar test-buttercup-junit-suite1 '(describe "suite1"
+									   (it "1.1 should pass"
+										 (expect 1 :to-equal 1))
+									   (it "1.2 should skip")
+									   (it "1.3 should fail"
+										 (expect 2 :to-equal 1))))
+
+(defvar test-buttercup-junit-suite2 '(describe "suite1"
+									   (it "1.1 should pass"
+										 (expect 1 :to-equal 1))
+									   (describe "suite2"
+										 (it "2.1 should pass"
+										   (expect t :to-be-truthy)))
+									   (it "1.2 should pass"
+										 (expect 2 :to-equal 2))))
+
+(defvar test-buttercup-junit-suite3 '(describe "suite1"
+									   (it "should error"
+										 (string= 1 2))))
+
+(defvar test-buttercup-junit-timestamp-re "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [012][0-9]:[0-5][0-9]:[0-5][0-9]\\+[012][0-9][0-5][0-9]")
+
+(describe "JUnit XML output"
+  :var ((timestamp (cons 'timestamp test-buttercup-junit-timestamp-re))
+		(time (cons 'time "[0-9]+\\.[0-9]+")))
+  (it "should handle success, failure and pending"
+	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite1) :to-esxml-match
+			`(testsuites
+			  nil
+			  (testsuite
+			   ((name . "suite1") (timestamp . ,test-buttercup-junit-timestamp-re) (hostname . ".+")
+				(tests . "3") (failures . "1") (errors . "0") (time . "[0-9]+\\.[0-9]+") (skipped . "1"))
+			   (testcase ((name . "1.1 should pass") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+")))
+			   (testcase ((name . "1.2 should skip") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
+						 (skipped nil))
+			   (testcase ((name . "1.3 should fail") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
+						 (failed ((message . "test") (type . "type")) "Expected 2 to `equal' 1"))))))
+  (it "should handle nested describes"
+	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite2) :to-esxml-match
+			`(testsuites
+			  nil
+			  (testsuite
+			   ((name . "suite1") ,timestamp (hostname . ".+")
+				(tests . "3") (failures . "0") (errors . "0") (time . "[0-9]+\\.[0-9]+") (skipped . "0"))
+			   (testcase ((name . "1.1 should pass") (classname . "buttercup") ,time))
+			   (testsuite
+				((name . "suite2") ,timestamp (hostname . ".+")
+				 (tests . "1") (failures . "0") (errors . "0") (time . "[0-9]+\\.[0-9]+") (skipped . "0")))
+				(testcase ((name . "1.2 should pass") (classname . "buttercup") ,time)))
+			  (testcase ((name . "1.3 should fail") (classname . "buttercup") ,time)))))
+  (it "should handle erroring testcases"
+	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite3) :to-esxml-match
+			`(testsuites
+			  nil
+			  (testsuite
+			   ((name . "suite1") ,timestamp (hostname . ".+")
+				(tests . "1") (failures . "0") (errors . "1") ,time (skipped . "0"))
+			   (testcase ((name . "should error") (classname . "buttercup") ,time))))))
+						 
+  )
+
 
 (provide 'test-buttercup-junit)
 ;;; test-buttercup-junit.el ends here
