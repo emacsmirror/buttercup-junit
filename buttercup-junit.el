@@ -164,6 +164,19 @@ and that level is incremented."
 	(incf buttercup-junit--indent-level)
 	(push (list suite failures errors time (current-time)) buttercup-junit--state-stack)))
 
+(defun buttercup-junit--close-testsuite (suite)
+  (decf buttercup-junit--indent-level)
+  (destructuring-bind (orig failures errors time start-time) (pop buttercup-junit--state-stack)
+	(unless (eq suite orig) (error "Corrupted buttercup-junit--state-stack"))
+	(save-excursion
+	  (buttercup-junit--insert-at failures
+								  (format "%d" (buttercup-suites-total-specs-failed (list suite))))
+	  (buttercup-junit--insert-at errors "0")
+	  (buttercup-junit--insert-at time
+								  (format "%f" (float-time (time-subtract (current-time) start-time))))))
+  (insert (make-string buttercup-junit--indent-level ?\s)
+		  "</testsuite>\n"))
+
 (defun buttercup-junit-reporter (event arg)
   "Insert JUnit tags into the `*junit*' buffer according to EVENT and ARG.
 See `buttercup-reporter' for documentation on the values of EVENT
@@ -237,18 +250,8 @@ and ARG.  A new output buffer is created on the
 	   (insert (if (bolp) (make-string buttercup-junit--indent-level ?\s) "") "</testcase>\n")))
 	;; suite-done -- A suite has finished. The argument is the spec.
 	(`suite-done
-	 (decf buttercup-junit--indent-level)
 	 (with-current-buffer buttercup-junit--buffer
-	   (destructuring-bind (orig failures errors time start-time) (pop buttercup-junit--state-stack)
-		 (unless (eq arg orig) (error "Corrupted buttercup-junit--state-stack"))
-		 (save-excursion
-		   (buttercup-junit--insert-at failures
-									   (format "%d" (buttercup-suites-total-specs-failed (list arg))))
-		   (buttercup-junit--insert-at errors "0")
-		   (buttercup-junit--insert-at time
-									   (format "%f" (float-time (time-subtract (current-time) start-time))))))
-	   (insert (make-string buttercup-junit--indent-level ?\s)
-			   "</testsuite>\n")))
+	   (buttercup-junit--close-testsuite arg)))
 	;; buttercup-done -- All suites have run, the test run is over.")
 	(`buttercup-done
 	 (with-current-buffer buttercup-junit--buffer
