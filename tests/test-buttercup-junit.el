@@ -140,6 +140,15 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 									   (it "should error"
 										 (string= 1 2))))
 
+(defvar test-buttercup-junit-suite4 '(describe "suite4"
+									   (it "4.1 should pass"
+										 (expect 1 :to-equal 1))
+									   (it "4.2 should skip")
+									   (it "4.3 should fail"
+										 (expect 2 :to-equal 1))
+									   (it "4.4 should error"
+										 (expect (string= 1 2) :to-be-thruthy))))
+
 (defvar test-buttercup-junit-timestamp-re "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [012][0-9]:[0-5][0-9]:[0-5][0-9]\\+[012][0-9][0-5][0-9]")
 
 (describe "JUnit XML output"
@@ -178,7 +187,24 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 			   ((name . "suite1") ,timestamp (hostname . ".+")
 				(tests . "1") (failures . "0") (errors . "1") ,time (skipped . "0"))
 			   (testcase ((name . "should error") (classname . "buttercup") ,time))))))
-						 
+  (it "should report correct test state numbers when using outer-suite"
+	;; neither the error numbering nor the outer suite works yet
+	(expect (esxml-buttercup-junit-suite  "outer" test-buttercup-junit-suite4) :to-esxml-match
+			`(testsuites
+			  nil
+			  (testsuite
+			   ((name . "outer") ,timestamp (hostname . ".+")
+				(tests . "4") (failures . "1") (errors . "1") ,time (skipped . "1"))
+			   (testsuite
+				((name . "suite4") ,timestamp (hostname . ".+")
+				(tests . "4") (failures . "1") (errors . "1") ,time (skipped . "1"))
+			   (testcase ((name . "4.1 should pass") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+")))
+			   (testcase ((name . "4.2 should skip") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
+						 (skipped nil))
+			   (testcase ((name . "4.3 should fail") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
+						 (failed ((message . "test") (type . "type")) "Expected 2 to `equal' 1"))
+			   (testcase ((name . "4.4 should error") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
+						 (failed ((message . "test") (type . "type")) "Expected 2 to `equal' 1")))))))
   )
 
 
