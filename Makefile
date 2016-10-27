@@ -1,7 +1,13 @@
 
+export PATH:=$(PATH):/home/olani/.cask/bin
+
 CWD := $(shell pwd)
 CASK = cask
 EMACS ?= emacs
+ifeq ($(EMACS),t)
+EMACS = emacs
+endif
+
 export emacs
 # .PHONY: install-cask
 # install-cask:
@@ -12,7 +18,7 @@ export emacs
 # 	git -C $(CASKDIR) config branch.master.rebase true
 # 	$(CASK) upgrade-cask
 
-TESTOPTS = -Q -L . -batch -l buttercup-junit -f package-initialize
+TESTOPTS = -Q -L . -L tests -batch -l buttercup-junit -f package-initialize
 
 JUNIT ?= buttercup-junit.xml
 
@@ -32,6 +38,9 @@ report: $(JUNIT)
 
 $(JUNIT): cask-install
 	$(CASK) exec $(EMACS) $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT) $(if $(OUTER),--outer-suite "$(OUTER)")
+
+stdout:
+	$(CASK) exec $(EMACS) $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT) --junit-stdout --outer-suite foo
 
 clean:
 	$(CASK) clean-elc
