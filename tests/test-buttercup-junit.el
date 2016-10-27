@@ -100,16 +100,25 @@
   )
 
 (defun esxml-buttercup-junit-suite (&rest suites)
-  "Run buttercup-junit on SUITES, and convert the JUnit XML to esxml."
-  (let ((buttercup-reporter #'buttercup-junit-reporter))
-	(let ((buttercup-junit-result-file nil))
+  "Run buttercup-junit on SUITES, and convert the JUnit XML to esxml.
+let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
+  (let ((buttercup-reporter #'buttercup-junit-reporter)
+		buttercup-junit-result-file buttercup-junit--buffer
+		buttercup-junit--state-stack
+		(buttercup-junit--indent-level 0)
+		buttercup-junit--to-stdout
+		buttercup-junit-master-suite)
 	  (let (buttercup-suites
 			(lexical-binding t))
 		(dolist (suite suites)
-		  (eval suite))
-		(buttercup-run)))
-	(with-current-buffer buttercup-junit--buffer
-	  (xml-to-esxml (buffer-string)))))
+		  (cond ((stringp suite)
+				 (if buttercup-junit-master-suite
+					 (warn "buttercup-junit-master-suite already set")
+				   (setq buttercup-junit-master-suite suite)))
+				(t (eval suite))))
+		(buttercup-run))
+	  (with-current-buffer buttercup-junit--buffer
+		(xml-to-esxml (buffer-string)))))
 
 (defvar test-buttercup-junit-suite1 '(describe "suite1"
 									   (it "1.1 should pass"
