@@ -185,7 +185,7 @@ and ARG.  A new output buffer is created on the
 `buttercup-junit-result-file' and possibly stdout on the
 `buttercup-done' event."
   (when (eq event `buttercup-started)
-	 (setq buttercup-junit--buffer (generate-new-buffer "*junit*")))
+	 (setq buttercup-junit--buffer (generate-new-buffer (generate-new-buffer-name "*junit*"))))
   (with-current-buffer buttercup-junit--buffer
 	(pcase event
 	  ;;buttercup-started -- The test run is starting. The argument is a list of suites this run will execute.
