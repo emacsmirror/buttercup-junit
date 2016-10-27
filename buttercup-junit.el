@@ -141,36 +141,54 @@ SUITE' in `commandline-args-left'"
 
 (defun buttercup-junit--open-testsuite (suite)
   "Insert the opening tag of the testsuite element for SUITE.
-SUITE is a `buttercup-suite' struct.  A list containg SUIT, the
-marks for the `failures', `errors', and `time' attribute values,
-and the current time is pushed on `buttercup-junit--state-stack.
-The tag is indented according to `buttercup-junit--indent-level',
-and that level is incremented."
+SUITE is a `buttercup-suite' struct."
+  (buttercup-junit--open-testsuite-impl (buttercup-suite-description suite) (list suite)))
+
+(defun buttercup-junit--open-outer-testsuite (name inner-suites)
+  "Insert the opening tag of the fake outer testsuite NAME.
+INNER-SUITES is a list of `buttercup-suite' structs for all the
+suites that will run."
+  (buttercup-junit--open-testsuite-impl name inner-suites))
+
+(defun buttercup-junit--open-testsuite-impl (name suites)
+    "Insert the opening tag of testsuite NAME.
+INNER-SUITES is a list of `buttercup-suite' structs for all the
+suites that will run."
   (let (failures errors time)
 	(insert (make-string buttercup-junit--indent-level ?\s)
 			(format "<testsuite name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\""
-					(buttercup-suite-description suite) ;name
+					name
 					(format-time-string "%Y-%m-%d %T%z" (current-time)) ; timestamp
 					(system-name) ;hostname
-					(buttercup-suites-total-specs-defined (list suite))))
+					(buttercup-suites-total-specs-defined suites)))
 	(setq failures (point-marker))
 	(insert "\" errors=\"")
 	(setq errors (point-marker))
 	(insert "\" time=\"")
 	(setq time (point-marker))
 	(insert (format "\" skipped=\"%d\" >"
-					(buttercup-suites-total-specs-pending (list suite)))
+					(buttercup-suites-total-specs-pending suites))
 			"\n")
 	(incf buttercup-junit--indent-level)
-	(push (list suite failures errors time (current-time)) buttercup-junit--state-stack)))
+	(push (list name suites failures errors time (current-time)) buttercup-junit--state-stack)))
 
 (defun buttercup-junit--close-testsuite (suite)
+  "Insert the closing tag of the testsuite SUITE."
+  (buttercup-junit--close-testsuite-impl (buttercup-suite-description suite) (list suite)))
+
+(defun buttercup-junit--close-outer-testsuite (name suites)
+  "Insert the closing tag of the fake outer testsuite NAME."
+  (buttercup-junit--close-testsuite-impl name suites))
+
+(defun buttercup-junit--close-testsuite-impl (name suites)
+  "Insert the closing tag of the testsuite NAME."
   (decf buttercup-junit--indent-level)
-  (destructuring-bind (orig failures errors time start-time) (pop buttercup-junit--state-stack)
-	(unless (eq suite orig) (error "Corrupted buttercup-junit--state-stack"))
+  (destructuring-bind (orig-name orig-suites failures errors time start-time)
+	  (pop buttercup-junit--state-stack)
+	(unless (string= name orig-name) (error "Corrupted buttercup-junit--state-stack"))
 	(save-excursion
 	  (buttercup-junit--insert-at failures
-								  (format "%d" (buttercup-suites-total-specs-failed (list suite))))
+								  (format "%d" (buttercup-suites-total-specs-failed suites)))
 	  (buttercup-junit--insert-at errors "0")
 	  (buttercup-junit--insert-at time
 								  (format "%f" (float-time (time-subtract (current-time) start-time))))))
@@ -195,12 +213,7 @@ and ARG.  A new output buffer is created on the
 			   "<testsuites>\n")
 	   (incf buttercup-junit--indent-level)
 	   (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
-		 (insert (make-string buttercup-junit--indent-level ?\s)
-				 (format "<testsuite name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"0\" failures=\"0\" skipped=\"0\">\n"
-						 buttercup-junit-master-suite
-						 (format-time-string "%Y-%m-%d %T%z" (current-time)) ; timestamp
-						 (system-name)))
-		 (incf buttercup-junit--indent-level)))
+		 (buttercup-junit--open-outer-testsuite buttercup-junit-master-suite arg)))
 	  ;; suite-started -- A suite is starting. The argument is the suite.
 	  ;;  See `make-buttercup-suite' for details on this structure.
 	  (`suite-started
@@ -250,10 +263,9 @@ and ARG.  A new output buffer is created on the
 	   (buttercup-junit--close-testsuite arg))
 	  ;; buttercup-done -- All suites have run, the test run is over.")
 	  (`buttercup-done
-	   (decf buttercup-junit--indent-level)
 	   (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
-		 (insert (make-string buttercup-junit--indent-level ?\s) "</testsuite>\n")
-		 (decf buttercup-junit--indent-level))
+		 (buttercup-junit--close-outer-testsuite buttercup-junit-master-suite arg))
+	   (decf buttercup-junit--indent-level)
 	   (insert (make-string buttercup-junit--indent-level ?\s)
 			   "</testsuites>\n")
 	   (when buttercup-junit--to-stdout
