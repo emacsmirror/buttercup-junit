@@ -184,11 +184,12 @@ and ARG.  A new output buffer is created on the
 `buttercup-started' event, and its contents are written to
 `buttercup-junit-result-file' and possibly stdout on the
 `buttercup-done' event."
-  (pcase event
-	;;buttercup-started -- The test run is starting. The argument is a list of suites this run will execute.
-	(`buttercup-started
-	 (setq buttercup-junit--buffer (generate-new-buffer "*junit*"))
-	 (with-current-buffer buttercup-junit--buffer
+  (when (eq event `buttercup-started)
+	 (setq buttercup-junit--buffer (generate-new-buffer "*junit*")))
+  (with-current-buffer buttercup-junit--buffer
+	(pcase event
+	  ;;buttercup-started -- The test run is starting. The argument is a list of suites this run will execute.
+	  (`buttercup-started
 	   (set-buffer-file-coding-system 'utf-8)
 	   (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 			   "<testsuites>\n")
@@ -199,28 +200,24 @@ and ARG.  A new output buffer is created on the
 						 buttercup-junit-master-suite
 						 (format-time-string "%Y-%m-%d %T%z" (current-time)) ; timestamp
 						 (system-name)))
-		 (incf buttercup-junit--indent-level))))
-	;; suite-started -- A suite is starting. The argument is the suite.
-	;;  See `make-buttercup-suite' for details on this structure.
-	(`suite-started
-	 (with-current-buffer buttercup-junit--buffer
-	   (buttercup-junit--open-testsuite arg)))
-	;; spec-started -- A spec is starting. The argument is the spec.
-	;;   See `make-buttercup-spec' for details on this structure.
-	(`spec-started
-	 (with-current-buffer buttercup-junit--buffer
+		 (incf buttercup-junit--indent-level)))
+	  ;; suite-started -- A suite is starting. The argument is the suite.
+	  ;;  See `make-buttercup-suite' for details on this structure.
+	  (`suite-started
+	   (buttercup-junit--open-testsuite arg))
+	  ;; spec-started -- A spec is starting. The argument is the spec.
+	  ;;   See `make-buttercup-spec' for details on this structure.
+	  (`spec-started
 	   (insert (make-string buttercup-junit--indent-level ?\s)
 			   "<testcase name=\""
 			   (buttercup-spec-description arg) ;name
 			   "\" classname=\"buttercup\" time=\"")
 	   (push (list arg (point-marker) (current-time)) buttercup-junit--state-stack)
 	   (insert "\">")
-	   (incf buttercup-junit--indent-level)
-	   ))
-	;; spec-done -- A spec has finished executing. The argument is the
-	;;   spec.
-	(`spec-done
-	 (with-current-buffer buttercup-junit--buffer
+	   (incf buttercup-junit--indent-level))
+	  ;; spec-done -- A spec has finished executing. The argument is the
+	  ;;   spec.
+	  (`spec-done
 	   (destructuring-bind (orig time start-time) (pop buttercup-junit--state-stack)
 		 (unless (eq arg orig) (error "Corrupted stack buttercup-junit--state-stack"))
 		 (save-excursion
@@ -247,14 +244,12 @@ and ARG.  A new output buffer is created on the
 		  (insert "\n" (make-string buttercup-junit--indent-level ?\s)
 				  "<skipped/>\n")))
 	   (decf buttercup-junit--indent-level)
-	   (insert (if (bolp) (make-string buttercup-junit--indent-level ?\s) "") "</testcase>\n")))
-	;; suite-done -- A suite has finished. The argument is the spec.
-	(`suite-done
-	 (with-current-buffer buttercup-junit--buffer
-	   (buttercup-junit--close-testsuite arg)))
-	;; buttercup-done -- All suites have run, the test run is over.")
-	(`buttercup-done
-	 (with-current-buffer buttercup-junit--buffer
+	   (insert (if (bolp) (make-string buttercup-junit--indent-level ?\s) "") "</testcase>\n"))
+	  ;; suite-done -- A suite has finished. The argument is the spec.
+	  (`suite-done
+	   (buttercup-junit--close-testsuite arg))
+	  ;; buttercup-done -- All suites have run, the test run is over.")
+	  (`buttercup-done
 	   (decf buttercup-junit--indent-level)
 	   (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
 		 (insert (make-string buttercup-junit--indent-level ?\s) "</testsuite>\n")
