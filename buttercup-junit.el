@@ -139,6 +139,31 @@ SUITE' in `commandline-args-left'"
   (setq marker nil)
   (apply #'insert insert-args))
 
+(defun buttercup-junit--open-testsuite (suite)
+  "Insert the opening tag of the testsuite element for SUITE.
+SUITE is a `buttercup-suite' struct.  A list containg SUIT, the
+marks for the `failures', `errors', and `time' attribute values,
+and the current time is pushed on `buttercup-junit--state-stack.
+The tag is indented according to `buttercup-junit--indent-level',
+and that level is incremented."
+  (let (failures errors time)
+	(insert (make-string buttercup-junit--indent-level ?\s)
+			(format "<testsuite name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\""
+					(buttercup-suite-description suite) ;name
+					(format-time-string "%Y-%m-%d %T%z" (current-time)) ; timestamp
+					(system-name) ;hostname
+					(buttercup-suites-total-specs-defined (list suite))))
+	(setq failures (point-marker))
+	(insert "\" errors=\"")
+	(setq errors (point-marker))
+	(insert "\" time=\"")
+	(setq time (point-marker))
+	(insert (format "\" skipped=\"%d\" >"
+					(buttercup-suites-total-specs-pending (list suite)))
+			"\n")
+	(incf buttercup-junit--indent-level)
+	(push (list suite failures errors time (current-time)) buttercup-junit--state-stack)))
+
 (defun buttercup-junit-reporter (event arg)
   "Insert JUnit tags into the `*junit*' buffer according to EVENT and ARG.
 See `buttercup-reporter' for documentation on the values of EVENT
@@ -166,24 +191,7 @@ and ARG.  A new output buffer is created on the
 	;;  See `make-buttercup-suite' for details on this structure.
 	(`suite-started
 	 (with-current-buffer buttercup-junit--buffer
-	   (let (failures errors time)
-		 (insert (make-string buttercup-junit--indent-level ?\s)
-				 (format "<testsuite name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\""
-						 (buttercup-suite-description arg) ;name
-						 (format-time-string "%Y-%m-%d %T%z" (current-time)) ; timestamp
-						 (system-name) ;hostname
-						 (buttercup-suites-total-specs-defined (list arg))))
-		 (setq failures (point-marker))
-		 (insert "\" errors=\"")
-		 (setq errors (point-marker))
-		 (insert "\" time=\"")
-		 (setq time (point-marker))
-		 (insert (format "\" skipped=\"%d\" >"
-						 (buttercup-suites-total-specs-pending (list arg)))
-				 "\n")
-		 (incf buttercup-junit--indent-level)
-		 (push (list arg failures errors time (current-time)) buttercup-junit--state-stack)
-		 )))
+	   (buttercup-junit--open-testsuite arg)))
 	;; spec-started -- A spec is starting. The argument is the spec.
 	;;   See `make-buttercup-spec' for details on this structure.
 	(`spec-started
