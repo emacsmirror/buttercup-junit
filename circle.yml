@@ -5,13 +5,19 @@ machine:
     ruby:
     python:
     pre:
-        - curl -fsSkL --retry 9 --retry-delay 9 https://raw.github.com/rejeep/evm/master/go | bash
-        - curl -fsSL https://raw.githubusercontent.com/cask/cask/master/go | python
     environment:
         PATH: $PATH:$HOME/.evm/bin:$HOME/.cask/bin
         EMACS: evm-emacs
+dependencies:
+    pre:
+        - sudo apt-get -qq update
+        - sudo apt-get install emacs24
+        - curl -fsSkL --retry 9 --retry-delay 9 https://raw.github.com/rejeep/evm/master/go | bash
+        - mkdir -p ~/.evms
+        - evm config path ~/.evms
     post:
-        - evm config path /tmp
+        - evm install --use emacs-25.1
+        - curl -fsSL https://raw.githubusercontent.com/cask/cask/master/go | python
 test:
     override:
         - ci/evm-matrix.sh $CIRCLE_NODE_INDEX $CIRCLE_NODE_TOTAL:
