@@ -14,8 +14,7 @@ trap errorcounter ERR
 evms=$(echo $EVMS | tr ' ' '\n' | awk "NR % $total == $index")
 export EMACS=evm-emacs
 for ever in $evms; do
-	evm install emacs-${ever}-travis || true
-	evm use emacs-${ever}-travis || exit 2
+	evm use emacs-${ever} || exit 2
 	make build
 	[ -d ${CIRCLE_TEST_REPORTS:-reports}/$ever ] || mkdir -p ${CIRCLE_TEST_REPORTS:-reports}/$ever
 	make report JUNIT=${CIRCLE_TEST_REPORTS:-reports}/$ever/junit.xml
