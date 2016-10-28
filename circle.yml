@@ -11,8 +11,8 @@ machine:
 dependencies:
     pre:
         - sudo apt-get -qq update
-        - sudo apt-get install emacs24
-        - sudo apt-get build-dep emacs24 || true
+        - sudo apt-get -qq install emacs24 libxpm-dev libncurses5-dev texinfo liblockfile-dev librsvg2-dev autoconf automake autotools-dev sharutils zlib1g-dev
+        - sudo DEBIAN_FRONTEND=noninteractive apt-get -y -qq build-dep emacs24 || true
         - curl -fsSkL --retry 9 --retry-delay 9 https://raw.github.com/rejeep/evm/master/go | bash
         - mkdir -p ~/.evms
         - evm config path ~/.evms
