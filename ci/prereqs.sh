@@ -1,5 +1,12 @@
 #!/bin/sh
 
+emacs_build_deps="libncurses5-dev texinfo liblockfile-dev librsvg2-dev \
+ libgif-dev libtiff-dev xaw3dg-dev libpng-dev libjpeg-dev libm17n-dev \
+ libotf-dev libgpm-dev libdbus-1-dev autoconf automake autotools-dev \
+ quilt libxaw7-dev sharutils imagemagick libgtk-3-dev libgnutls28-dev \
+ libxml2-dev libselinux1-dev libmagick++-dev libgconf2-dev \
+ libasound2-dev libacl1-dev zlib1g-dev libxpm-dev"
+
 set -e
 set -x
 
@@ -7,9 +14,7 @@ install_prereqs() {
 	if [ ! "$once" ]; then
 		# Install Emacs build deps
 		sudo apt-get -qq update
-		sudo apt-get -y -qq install emacs24 libxpm-dev libncurses5-dev texinfo \
-			 liblockfile-dev librsvg2-dev autoconf automake autotools-dev sharutils zlib1g-dev
-		sudo DEBIAN_FRONTEND=noninteractive apt-get -y -qq build-dep emacs24
+		sudo DEBIAN_FRONTEND=noninteractive apt-get -y -qq install $emacs_build_deps
 		once="once"
 	else
 		echo Requirements already installed
