@@ -186,7 +186,8 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 			  (testsuite
 			   ((name . "suite1") ,timestamp (hostname . ".+")
 				(tests . "1") (failures . "0") (errors . "1") ,time (skipped . "0"))
-			   (testcase ((name . "should error") (classname . "buttercup") ,time))))))
+			   (testcase ((name . "should error") (classname . "buttercup") ,time)
+						 (error ((message . "test") (type . "type"))))))))
   (it "should report correct test state numbers when using outer-suite"
 	;; neither the error numbering nor the outer suite works yet
 	(expect (esxml-buttercup-junit-suite  "outer" test-buttercup-junit-suite4) :to-esxml-match
@@ -204,7 +205,7 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 			   (testcase ((name . "4.3 should fail") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
 						 (failed ((message . "test") (type . "type")) "Expected 2 to `equal' 1"))
 			   (testcase ((name . "4.4 should error") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
-						 (failed ((message . "test") (type . "type")) "Expected 2 to `equal' 1")))))))
+						 (error ((message . "test") (type . "type")) "(error\\>.*")))))))
   )
 
 
