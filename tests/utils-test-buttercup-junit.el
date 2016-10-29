@@ -37,11 +37,14 @@ in the same order."
   (if (not (= (length attribs) (length pattern)))
 	  (cons nil "attrs are not equal length")
 	(let (p)
-	  (cl-dolist (a attribs '(t . "Attrs should not match"))
-		(or (and (setq p (assoc (car a) pattern))
-				 (string-match (cdr p) (cdr a)))
-			(return (cons nil (format "%s=\"%s\" should match %s=\"%s\""
-									  (car a) (cdr a) (car p) (cdr p)))))))))
+	  ;; cl-dolist is not in Emacs 24.2, so use a wrapping block.
+	  ;; cl-block is not in Emacs 24.2 either.
+	  (block nil
+		(dolist (a attribs '(t . "Attrs should not match"))
+		  (or (and (setq p (assoc (car a) pattern))
+				   (string-match (cdr p) (cdr a)))
+			  (return (cons nil (format "%s=\"%s\" should match %s=\"%s\""
+										(car a) (cdr a) (car p) (cdr p))))))))))
 		
 (defun esxml-tag-match (tag pattern)
   "Match a esxml element TAG against PATTERN."
