@@ -1,11 +1,18 @@
 #!/bin/sh
 set -e
 
-# Install Emacs build deps
-sudo apt-get -qq update
-sudo apt-get -y -qq install emacs24-nox libxpm-dev libncurses5-dev texinfo \
-	 liblockfile-dev librsvg2-dev autoconf automake autotools-dev sharutils zlib1g-dev
-sudo DEBIAN_FRONTEND=noninteractive apt-get -y -qq build-dep emacs24-nox
+install_prereqs() {
+	if [ ! "$once" ]; then
+		# Install Emacs build deps
+		sudo apt-get -qq update
+		sudo apt-get -y -qq install emacs24-nox libxpm-dev libncurses5-dev texinfo \
+			 liblockfile-dev librsvg2-dev autoconf automake autotools-dev sharutils zlib1g-dev
+		sudo DEBIAN_FRONTEND=noninteractive apt-get -y -qq build-dep emacs24-nox
+		once="once"
+	else
+		echo Requirements already installed
+	fi
+}
 
 # Install or update evm
 if [ -d ~/.evm/.git ]; then
@@ -27,7 +34,12 @@ fi
 
 # InstalL the required Emacs versions from source
 for ver in 25.1 24.5 24.4 24.3 24.2; do
-	evm use emacs-$ver || evm install emacs-$ver
+	if 	evm use emacs-$ver ; then
+		echo emacs-$ver already installed
+	else
+		install_prereqs
+		evm install emacs-$ver
+	fi
 	#cask install
 done
 # evm use emacs-24.4         || evm install emacs-24.4
