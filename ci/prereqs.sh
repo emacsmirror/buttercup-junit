@@ -1,5 +1,7 @@
 #!/bin/sh
+
 set -e
+set -x
 
 install_prereqs() {
 	if [ ! "$once" ]; then
