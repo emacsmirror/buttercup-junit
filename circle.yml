@@ -5,13 +5,18 @@ machine:
     ruby:
     python:
     pre:
-        - curl -fsSkL --retry 9 --retry-delay 9 https://raw.github.com/rejeep/evm/master/go | bash
-        - curl -fsSL https://raw.githubusercontent.com/cask/cask/master/go | python
     environment:
         PATH: $PATH:$HOME/.evm/bin:$HOME/.cask/bin
         EMACS: evm-emacs
-    post:
-        - evm config path /tmp
+        with_x_toolkit: n
+        with_xml2: y
+dependencies:
+    pre:
+        - ci/prereqs.sh
+    cache_directories:
+        - "~/.evm"
+        - "~/.evms"
+        - "~/.cask"
 test:
     override:
         - ci/evm-matrix.sh $CIRCLE_NODE_INDEX $CIRCLE_NODE_TOTAL:
@@ -20,6 +25,5 @@ deployment:
     bitbucket:
         branch: master
         commands:
-            - evm install --use emacs-25.1-travis
+            - evm use emacs-25.1 || evm install --use emacs-25.1
             - ci/publish.sh -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
-
