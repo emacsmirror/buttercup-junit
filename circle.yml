@@ -25,5 +25,5 @@ deployment:
     bitbucket:
         branch: master
         commands:
-            - evm install --use emacs-25.1-travis
+            - evm use emacs-25.1 || evm install --use emacs-25.1
             - ci/publish.sh -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
