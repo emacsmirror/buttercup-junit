@@ -6,7 +6,7 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 0.3.0
+;; Version: 0.4.0
 ;; Package-Requires: ((buttercup "1.5"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
@@ -180,16 +180,28 @@ suites that will run."
   "Insert the closing tag of the fake outer testsuite NAME."
   (buttercup-junit--close-testsuite-impl name suites))
 
+(unless (fboundp 'buttercup-suites-total-specs-error)
+  (defun buttercup-suites-total-specs-error (suite-list)
+	"Return the number of errored specs in all suites in SUITE-LIST."
+	(let ((nspecs 0))
+	  (dolist (spec-or-suite (buttercup--specs-and-suites suite-list))
+		(when (and (buttercup-spec-p spec-or-suite)
+				   (eq (buttercup-spec-status spec-or-suite) 'error))
+		  (setq nspecs (1+ nspecs))))
+	  nspecs)))
+
 (defun buttercup-junit--close-testsuite-impl (name suites)
   "Insert the closing tag of the testsuite NAME."
   (decf buttercup-junit--indent-level)
   (destructuring-bind (orig-name orig-suites failures errors time start-time)
 	  (pop buttercup-junit--state-stack)
+	(ignore orig-suites)
 	(unless (string= name orig-name) (error "Corrupted buttercup-junit--state-stack"))
 	(save-excursion
 	  (buttercup-junit--insert-at failures
 								  (format "%d" (buttercup-suites-total-specs-failed suites)))
-	  (buttercup-junit--insert-at errors "0")
+	  (buttercup-junit--insert-at errors
+								  (format "%d" (buttercup-suites-total-specs-error suites)))
 	  (buttercup-junit--insert-at time
 								  (format "%f" (float-time (time-subtract (current-time) start-time))))))
   (insert (make-string buttercup-junit--indent-level ?\s)
@@ -251,7 +263,8 @@ and ARG.  A new output buffer is created on the
 				   (insert "\n" (make-string buttercup-junit--indent-level ?\s)
 						   "<error message=\"test\" type=\"type\">")
 				   (pp desc buttercup-junit--buffer)
-				   (insert "</error>\n"))
+				   (insert "</error>\n")
+				   (setf (buttercup-spec-status arg) 'error))
 				  )))
 		 (`pending
 		  (insert "\n" (make-string buttercup-junit--indent-level ?\s)
