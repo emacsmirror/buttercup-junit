@@ -35,6 +35,8 @@ else
 fi
 
 # InstalL the required Emacs versions from source
+# vers="25.1 24.5 24.4 24.3 24.2"
+vers="25.1"
 for ver in 25.1 24.5 24.4 24.3 24.2; do
 	if 	evm use emacs-$ver ; then
 		echo emacs-$ver already installed
