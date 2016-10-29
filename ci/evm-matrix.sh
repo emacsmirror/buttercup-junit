@@ -15,10 +15,15 @@ trap errorcounter ERR
 evms=$(echo $EVMS | tr ' ' '\n' | awk "NR % $total == $index")
 export EMACS=evm-emacs
 for ever in $evms; do
+	echo Switch to evm emacs $ever
 	evm use emacs-${ever} || exit 2
+	echo "Run 'make build'"
 	make build
-	[ -d ${CIRCLE_TEST_REPORTS:-reports}/$ever ] || mkdir -p ${CIRCLE_TEST_REPORTS:-reports}/$ever
-	make report JUNIT=${CIRCLE_TEST_REPORTS:-reports}/$ever/junit.xml
+	reportdir=${CIRCLE_TEST_REPORTS:-reports}/$ever
+	[ -d $reportdir ] || mkdir -p $reportdir
+	export reportfile=$reportdir/junit.xml
+	echo "Run 'make report', writing report to $reportfile"
+	make report JUNIT=$reportfile
 done
 
 exit ${errcount:-0}

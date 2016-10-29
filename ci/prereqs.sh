@@ -7,11 +7,6 @@ emacs_build_deps="libncurses5-dev texinfo liblockfile-dev librsvg2-dev \
  libxml2-dev libselinux1-dev libmagick++-dev libgconf2-dev \
  libasound2-dev libacl1-dev zlib1g-dev libxpm-dev"
 #  xaw3dg-dev libxaw7-dev
-set -e
-set -x
-
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq libncurses5 liblockfile1 librsvg2-2 libgif4 libtiff5 libm17n-0 libotf0 libgpm2 libdbus-1-3 imagemagick libgnutls28 libxml2 libselinux1 libmagick\\+\\+6 libgconf-2-4 libasound2 libacl1 zlib1g libxpm4
-# libpng12 libjpeg62-turbo
 
 install_prereqs() {
 	if [ ! "$once" ]; then
@@ -23,6 +18,12 @@ install_prereqs() {
 		echo Requirements already installed
 	fi
 }
+
+set -e
+set -v
+
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq libncurses5 liblockfile1 librsvg2-2 libgif4 libtiff5 libm17n-0 libotf0 libgpm2 libdbus-1-3 imagemagick libgnutls28 libxml2 libselinux1 libmagick\\+\\+6 libgconf-2-4 libasound2 libacl1 zlib1g libxpm4
+# libpng12 libjpeg62-turbo
 
 # Install or update evm
 if [ -d ~/.evm/.git ]; then
@@ -44,12 +45,13 @@ fi
 
 # InstalL the required Emacs versions from source
 # vers="25.1 24.5 24.4 24.3 24.2"
-vers="25.1"
+# vers="25.1"
 for ver in 25.1 24.5 24.4 24.3 24.2; do
 	if 	evm use emacs-$ver ; then
 		echo emacs-$ver already installed
 	else
 		install_prereqs
+		echo evm install emacs-$ver
 		evm install emacs-$ver >emacs-$ver.log 2>&1
 	fi
 	#cask install
@@ -59,4 +61,5 @@ done
 # evm use emacs-24.2         || evm install emacs-24.2
 # evm use emacs-24.1         || evm install emacs-24.1
 # evm use emacs-git-snapshot || evm install emacs-git-snapshot
+echo evm use emacs-25.1
 evm use emacs-25.1
