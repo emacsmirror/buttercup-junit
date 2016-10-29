@@ -7,9 +7,9 @@ install_prereqs() {
 	if [ ! "$once" ]; then
 		# Install Emacs build deps
 		sudo apt-get -qq update
-		sudo apt-get -y -qq install emacs24-nox libxpm-dev libncurses5-dev texinfo \
+		sudo apt-get -y -qq install emacs24 libxpm-dev libncurses5-dev texinfo \
 			 liblockfile-dev librsvg2-dev autoconf automake autotools-dev sharutils zlib1g-dev
-		sudo DEBIAN_FRONTEND=noninteractive apt-get -y -qq build-dep emacs24-nox
+		sudo DEBIAN_FRONTEND=noninteractive apt-get -y -qq build-dep emacs24
 		once="once"
 	else
 		echo Requirements already installed
