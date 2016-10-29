@@ -24,7 +24,7 @@
 
 ;;; Code:
 
-(require 'cl-lib)
+(or (require 'cl-lib nil t) (require 'cl))
 (require 'buttercup)
 (require 'esxml)
 
