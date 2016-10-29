@@ -26,7 +26,7 @@ mkdir -p ~/.evms
 evm config path ~/.evms
 
 # Install one Emacs version, why not the latest release
-evm use emacs-25.1 || evm install --use emacs-25.1
+evm use emacs-25.1 || { install_prereqs; evm install --use emacs-25.1  > emacs-25.1.log ; }
 if [ -d ~/.cask/.git ]; then
 	git -C ~/.cask/ pull
 	#cask upgrade-cask
