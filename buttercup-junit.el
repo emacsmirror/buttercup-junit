@@ -199,9 +199,9 @@ suites that will run."
 	(unless (string= name orig-name) (error "Corrupted buttercup-junit--state-stack"))
 	(save-excursion
 	  (buttercup-junit--insert-at failures
-								  (format "%d" (buttercup-suites-total-specs-failed suites)))
+								  (number-to-string (buttercup-suites-total-specs-failed suites)))
 	  (buttercup-junit--insert-at errors
-								  (format "%d" (buttercup-suites-total-specs-error suites)))
+								  (number-to-string (buttercup-suites-total-specs-error suites)))
 	  (buttercup-junit--insert-at time
 								  (format "%f" (float-time (time-subtract (current-time) start-time))))))
   (insert (make-string buttercup-junit--indent-level ?\s)
