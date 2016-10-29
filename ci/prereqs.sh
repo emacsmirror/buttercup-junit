@@ -40,7 +40,7 @@ for ver in 25.1 24.5 24.4 24.3 24.2; do
 		echo emacs-$ver already installed
 	else
 		install_prereqs
-		evm install emacs-$ver
+		evm install emacs-$ver > emacs-$ver.log
 	fi
 	#cask install
 done
