@@ -58,7 +58,7 @@ in the same order."
 		 (setq tag (cddr tag)
 			   pattern (cddr pattern))
 		 (if (null tag) (cons t "Element and pattern should not match")
-		   (cl-do
+		   (do ; cl-do is not in emacs 24.2
 			   ((subtag (car tag) (car tag))
 				(subpat (car pattern) (car pattern)))
 			   ((not (and (pop tag) (pop pattern))) (cons t "Element and pattern should not match"))
