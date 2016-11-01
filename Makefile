@@ -12,7 +12,7 @@ export emacs
 # 	git -C $(CASKDIR) config branch.master.rebase true
 # 	$(CASK) upgrade-cask
 
-TESTOPTS = -Q -L . -batch -l buttercup-junit -f package-initialize
+TESTOPTS = -L . -batch -l buttercup-junit -f package-initialize
 
 JUNIT ?= buttercup-junit.xml
 
