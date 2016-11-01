@@ -8,8 +8,6 @@ machine:
     environment:
         PATH: $PATH:$HOME/.evm/bin:$HOME/.cask/bin
         EMACS: evm-emacs
-        with_x_toolkit: n
-        with_xml2: y
 dependencies:
     pre:
         - ci/prereqs.sh
