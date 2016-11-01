@@ -26,12 +26,12 @@ package: cask-install
 	$(CASK) package
 
 test: cask-install
-	$(CASK) exec $(EMACS) $(TESTOPTS) -f buttercup-run-discover
+	$(CASK) emacs $(TESTOPTS) -f buttercup-run-discover
 
 report: $(JUNIT)
 
 $(JUNIT): cask-install
-	$(CASK) exec $(EMACS) $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT)
+	$(CASK) emacs $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT)
 
 clean:
 	$(CASK) clean-elc
