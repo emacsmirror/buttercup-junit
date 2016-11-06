@@ -48,3 +48,4 @@ buttercup-junit-run-discover will consume the following flags from
 # More indformation about the JUnit format
 
  * http://help.catchsoftware.com/display/ET/JUnit+Format
+ * http://llg.cubic.org/docs/junit/
