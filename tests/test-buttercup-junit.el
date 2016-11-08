@@ -99,6 +99,21 @@
 	(expect (buttercup-junit-run-discover) :not :to-be nil))
   )
 
+(defun test-buttercup-run (suites)
+  "Run buttercup for SUITES.
+SUITES should be a list of buttercup `description' forms.  One of
+them may also be a string, if so `buttercup-junit-master-suite'
+will be set to that string value."
+  (let (buttercup-suites
+		(lexical-binding t))
+	(dolist (suite suites)
+	  (cond ((stringp suite)
+			 (if buttercup-junit-master-suite
+				 (warn "buttercup-junit-master-suite already set")
+			   (setq buttercup-junit-master-suite suite)))
+			(t (eval suite))))
+	(buttercup-run)))
+
 (defun esxml-buttercup-junit-suite (&rest suites)
   "Run buttercup-junit on SUITES, and convert the JUnit XML to esxml.
 let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
@@ -108,15 +123,7 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 		(buttercup-junit--indent-level 0)
 		buttercup-junit--to-stdout
 		buttercup-junit-master-suite)
-	  (let (buttercup-suites
-			(lexical-binding t))
-		(dolist (suite suites)
-		  (cond ((stringp suite)
-				 (if buttercup-junit-master-suite
-					 (warn "buttercup-junit-master-suite already set")
-				   (setq buttercup-junit-master-suite suite)))
-				(t (eval suite))))
-		(buttercup-run))
+	(test-buttercup-run suites)
 	  (with-current-buffer buttercup-junit--buffer
 		(xml-to-esxml (buffer-string)))))
 
