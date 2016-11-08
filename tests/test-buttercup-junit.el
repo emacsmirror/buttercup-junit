@@ -99,6 +99,18 @@
 	(expect (buttercup-junit-run-discover) :not :to-be nil))
   )
 
+(defmacro buttercup-junit--with-local-vars (&rest body)
+  "Execute BODY with all buttercup-junit state vars locally bound."
+  (declare ((debug t)) (indent defun))
+  `(let ((buttercup-reporter #'buttercup-junit-reporter)
+		 (buttercup-junit--indent-level 0)
+		 buttercup-junit-result-file
+		 buttercup-junit--buffer
+		 buttercup-junit--state-stack
+		 buttercup-junit--to-stdout
+		 buttercup-junit-master-suite)
+	 ,@body))
+
 (defun test-buttercup-run (suites)
   "Run buttercup for SUITES.
 SUITES should be a list of buttercup `description' forms.  One of
@@ -117,15 +129,10 @@ will be set to that string value."
 (defun esxml-buttercup-junit-suite (&rest suites)
   "Run buttercup-junit on SUITES, and convert the JUnit XML to esxml.
 let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
-  (let ((buttercup-reporter #'buttercup-junit-reporter)
-		buttercup-junit-result-file buttercup-junit--buffer
-		buttercup-junit--state-stack
-		(buttercup-junit--indent-level 0)
-		buttercup-junit--to-stdout
-		buttercup-junit-master-suite)
+  (buttercup-junit--with-local-vars
 	(test-buttercup-run suites)
-	  (with-current-buffer buttercup-junit--buffer
-		(xml-to-esxml (buffer-string)))))
+	(with-current-buffer buttercup-junit--buffer
+	  (xml-to-esxml (buffer-string)))))
 
 (defvar test-buttercup-junit-suite1 '(describe "suite1"
 									   (it "1.1 should pass"
