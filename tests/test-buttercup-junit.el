@@ -126,6 +126,11 @@ will be set to that string value."
 			(t (eval suite))))
 	(buttercup-run)))
 
+(defun buttercup-junit-suite (&rest suites)
+  "Run buttercup-junit on SUITES."
+  (buttercup-junit--with-local-vars
+	(test-buttercup-run suites)))
+
 (defun esxml-buttercup-junit-suite (&rest suites)
   "Run buttercup-junit on SUITES, and convert the JUnit XML to esxml.
 let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
@@ -223,6 +228,21 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 			   (testcase ((name . "4.4 should error") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
 						 (error ((message . "test") (type . "type")) "(error\\>.*"))))))))
 
+(describe "Return value"
+  (before-each (spy-on 'buttercup-junit--exit-code))
+  (after-each (spy-calls-reset 'buttercup-junit--exit-code))
+  (describe "when all tests pass"
+	(it "should be ok"
+	  (buttercup-junit-suite test-buttercup-junit-suite2)
+	  (expect 'buttercup-junit--exit-code :not :to-have-been-called)))
+  (describe "when a test fails"
+	(it "should be fail"
+	  (buttercup-junit-suite test-buttercup-junit-suite1)
+	  (expect 'buttercup-junit--exit-code :to-have-been-called)))
+  (describe "when there is an error in a test"
+	(it "should be fail"
+	  (buttercup-junit-suite test-buttercup-junit-suite3)
+	  (expect 'buttercup-junit--exit-code :to-have-been-called))))
 
 (provide 'test-buttercup-junit)
 ;;; test-buttercup-junit.el ends here
