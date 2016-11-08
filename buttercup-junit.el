@@ -284,7 +284,16 @@ and ARG.  A new output buffer is created on the
 	   (when buttercup-junit--to-stdout
 		 (send-string-to-terminal (buffer-string)))
 	   (when buttercup-junit-result-file
-		 (write-file buttercup-junit-result-file))))))
+		 (write-file buttercup-junit-result-file))
+	   (unless (zerop (+ (buttercup-suites-total-specs-failed arg)
+					   (buttercup-suites-total-specs-error arg)))
+		 (buttercup-junit--exit-code))
+	   ))))
+
+(defun buttercup-junit--exit-code ()
+  "Signal error so script return value is failed.
+This function exists only for testability reasons, "
+	(error ""))
 
 (provide 'buttercup-junit)
 ;;; buttercup-junit.el ends here
