@@ -154,6 +154,8 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 (describe "JUnit XML output"
   :var ((timestamp (cons 'timestamp test-buttercup-junit-timestamp-re))
 		(time (cons 'time "[0-9]+\\.[0-9]+")))
+  (before-each (spy-on 'buttercup-junit--exit-code :and-return-value nil ))
+  (after-each (spy-calls-reset 'buttercup-junit--exit-code))
   (it "should handle success, failure and pending"
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite1) :to-esxml-match
 			`(testsuites
@@ -205,8 +207,7 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 			   (testcase ((name . "4.3 should fail") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
 						 (failed ((message . "test") (type . "type")) "Expected 2 to `equal' 1"))
 			   (testcase ((name . "4.4 should error") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
-						 (error ((message . "test") (type . "type")) "(error\\>.*")))))))
-  )
+						 (error ((message . "test") (type . "type")) "(error\\>.*"))))))))
 
 
 (provide 'test-buttercup-junit)
