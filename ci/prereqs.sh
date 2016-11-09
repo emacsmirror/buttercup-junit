@@ -44,9 +44,7 @@ else
 fi
 
 # InstalL the required Emacs versions from source
-# vers="25.1 24.5 24.4 24.3 24.2"
-# vers="25.1"
-for ver in 25.1 24.5 24.4 24.3 24.2; do
+for ver in 25.1 24.5 24.4 24.3; do
 	if 	evm use emacs-$ver ; then
 		echo emacs-$ver already installed
 	else
@@ -56,10 +54,5 @@ for ver in 25.1 24.5 24.4 24.3 24.2; do
 	fi
 	#cask install
 done
-# evm use emacs-24.4         || evm install emacs-24.4
-# evm use emacs-24.3         || evm install emacs-24.3
-# evm use emacs-24.2         || evm install emacs-24.2
-# evm use emacs-24.1         || evm install emacs-24.1
-# evm use emacs-git-snapshot || evm install emacs-git-snapshot
 echo evm use emacs-25.1
 evm use emacs-25.1
