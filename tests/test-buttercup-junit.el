@@ -101,7 +101,7 @@
 
 (defmacro buttercup-junit--with-local-vars (&rest body)
   "Execute BODY with all buttercup-junit state vars locally bound."
-  (declare ((debug t)) (indent defun))
+  (declare (debug t) (indent defun))
   `(let ((buttercup-reporter #'buttercup-junit-reporter)
 		 (buttercup-junit--indent-level 0)
 		 buttercup-junit-result-file

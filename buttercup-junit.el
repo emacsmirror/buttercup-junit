@@ -180,6 +180,7 @@ suites that will run."
   "Insert the closing tag of the fake outer testsuite NAME."
   (buttercup-junit--close-testsuite-impl name suites))
 
+(declare-function buttercup-suites-total-specs-error nil (suite-list))
 (unless (fboundp 'buttercup-suites-total-specs-error)
   (defun buttercup-suites-total-specs-error (suite-list)
 	"Return the number of errored specs in all suites in SUITE-LIST."
