@@ -18,7 +18,7 @@ export emacs
 # 	git -C $(CASKDIR) config branch.master.rebase true
 # 	$(CASK) upgrade-cask
 
-TESTOPTS = -Q -L . -L tests -batch -l buttercup-junit -f package-initialize
+TESTOPTS = -L . -L tests -batch -l buttercup-junit -f package-initialize
 
 JUNIT ?= buttercup-junit.xml
 
@@ -32,15 +32,15 @@ package: cask-install
 	$(CASK) package
 
 test: cask-install
-	$(CASK) exec $(EMACS) $(TESTOPTS) -f buttercup-run-discover
+	$(CASK) emacs $(TESTOPTS) -f buttercup-run-discover
 
 report: $(JUNIT)
 
 $(JUNIT): cask-install
-	$(CASK) exec $(EMACS) $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT) $(if $(OUTER),--outer-suite "$(OUTER)")
+	$(CASK) emacs $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT) $(if $(OUTER),--outer-suite "$(OUTER)")
 
 stdout:
-	$(CASK) exec $(EMACS) $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT) --junit-stdout --outer-suite foo
+	$(CASK) emacs $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT) --junit-stdout --outer-suite foo
 
 clean:
 	$(CASK) clean-elc
