@@ -6,7 +6,7 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 0.4.2
+;; Version: 0.4.3
 ;; Package-Requires: ((buttercup "1.5"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
@@ -103,6 +103,7 @@ as the last item in `command-line-args-left'."
   (prog1 (member option command-line-args-left)
 	(setq command-line-args-left (remove option command-line-args-left))))
 
+;;;###autoload
 (defun buttercup-junit-run-discover ()
   "Execute `buttercup-run-discover' with `buttercup-junit-reporter' set.
 The JUnit report will be written to the file specified by
@@ -121,6 +122,7 @@ SUITE' in `commandline-args-left'"
 		(buttercup-reporter #'buttercup-junit-reporter))
 	(buttercup-run-discover)))
 
+;;;###autoload
 (defun buttercup-junit-at-point (&optional outer)
   (interactive "souter: ")
   (let ((command-line-args-left (list "--xmlfile" buttercup-junit-result-file)))
@@ -210,6 +212,7 @@ suites that will run."
   (insert (make-string buttercup-junit--indent-level ?\s)
 		  "</testsuite>\n"))
 
+;;;###autoload
 (defun buttercup-junit-reporter (event arg)
   "Insert JUnit tags into the `*junit*' buffer according to EVENT and ARG.
 See `buttercup-reporter' for documentation on the values of EVENT
