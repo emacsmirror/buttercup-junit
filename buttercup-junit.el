@@ -6,7 +6,7 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 0.4.1
+;; Version: 0.4.2
 ;; Package-Requires: ((buttercup "1.5"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
@@ -61,9 +61,11 @@
 
 (defvar buttercup-junit--indent-level 0
   "Current report indent level.")
+(make-variable-buffer-local 'buttercup-junit--indent-level)
 
 (defvar buttercup-junit--state-stack nil
   "Stack for storing state between started and done events.")
+(make-variable-buffer-local 'buttercup-junit--state-stack)
 
 (defvar buttercup-junit--to-stdout nil
   "Whether to print the xml file to stdout as well.")

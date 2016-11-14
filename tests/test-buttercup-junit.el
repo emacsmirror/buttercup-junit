@@ -103,10 +103,8 @@
   "Execute BODY with all buttercup-junit state vars locally bound."
   (declare (debug t) (indent defun))
   `(let ((buttercup-reporter #'buttercup-junit-reporter)
-		 (buttercup-junit--indent-level 0)
 		 buttercup-junit-result-file
 		 buttercup-junit--buffer
-		 buttercup-junit--state-stack
 		 buttercup-junit--to-stdout
 		 buttercup-junit-master-suite)
 	 ,@body))
