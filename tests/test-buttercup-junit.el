@@ -186,7 +186,7 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 			   (testcase ((name . "1.2 should skip") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
 						 (skipped nil))
 			   (testcase ((name . "1.3 should fail") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
-						 (failed ((message . "test") (type . "type")) "Expected 2 to `equal' 1"))))))
+						 (failed ((message . "Expected 2 to `equal' 1") (type . "type")) "Traceback .*"))))))
   (it "should handle nested describes"
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite2) :to-esxml-match
 			`(testsuites
@@ -208,7 +208,7 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 			   ((name . "suite1") ,timestamp (hostname . ".+")
 				(tests . "1") (failures . "0") (errors . "1") ,time (skipped . "0"))
 			   (testcase ((name . "should error") (classname . "buttercup") ,time)
-						 (error ((message . "test") (type . "type"))))))))
+						 (error ((message . "(wrong-type-argument stringp 1)") (type . "error")) "Traceback.*"))))))
   (it "should report correct test state numbers when using outer-suite"
 	;; neither the error numbering nor the outer suite works yet
 	(expect (esxml-buttercup-junit-suite  "outer" test-buttercup-junit-suite4) :to-esxml-match
@@ -224,9 +224,9 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 			   (testcase ((name . "4.2 should skip") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
 						 (skipped nil))
 			   (testcase ((name . "4.3 should fail") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
-						 (failed ((message . "test") (type . "type")) "Expected 2 to `equal' 1"))
+						 (failed ((message . "Expected 2 to `equal' 1") (type . "type")) "Traceback .*"))
 			   (testcase ((name . "4.4 should error") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
-						 (error ((message . "test") (type . "type")) "(error\\>.*"))))))))
+						 (error ((message . "(wrong-type-argument stringp 1)") (type . "error")) "Traceback.*"))))))))
 
 (describe "Return value"
   (before-each (spy-on 'buttercup-junit--exit-code))

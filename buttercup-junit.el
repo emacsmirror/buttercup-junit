@@ -253,20 +253,26 @@ and ARG.  A new output buffer is created on the
 																		  start-time))))))
 	   (pcase (buttercup-spec-status arg)
 		 (`failed
-		  (let ((desc (buttercup-spec-failure-description arg)))
-			(cond ((stringp desc)
-				   (insert "\n" (make-string buttercup-junit--indent-level ?\s)
-						   "<failed message=\"test\" type=\"type\">"
-						   desc
-						   "</failed>\n"))
-				  ((and (listp desc)
-						(eq (car desc) 'error))
-				   (insert "\n" (make-string buttercup-junit--indent-level ?\s)
-						   "<error message=\"test\" type=\"type\">")
-				   (pp desc buttercup-junit--buffer)
-				   (insert "</error>\n")
+		  (let ((desc (buttercup-spec-failure-description arg))
+				(stack (buttercup-spec-failure-stack arg))
+				tag message type)
+			(cond ((stringp desc) (setq tag "failed"
+										message desc
+										type "type")) ; TODO: find a proper value for type
+				  ((eq (car desc) 'error)
+				   (setq tag "error"
+						 message (pp-to-string (cadr desc))
+						 type (symbol-name (car desc)))
 				   (setf (buttercup-spec-status arg) 'error))
-				  )))
+				  (t (setq tag "failed"
+						   message (pp-to-string desc)
+						   type "unknown")))
+			(insert "\n" (make-string buttercup-junit--indent-level ?\s)
+					"<" tag " message=\"" message "\" type=\"" type "\">"
+					"Traceback (most recent call last):\n")
+			(dolist (frame stack)
+			  (insert (format "  %S" (cdr frame)) "\n"))
+			(insert "</" tag ">\n")))
 		 (`pending
 		  (insert "\n" (make-string buttercup-junit--indent-level ?\s)
 				  "<skipped/>\n")))
