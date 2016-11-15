@@ -224,7 +224,15 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 			   (testcase ((name . "4.3 should fail") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
 						 (failed ((message . "Expected 2 to `equal' 1") (type . "type")) "Traceback .*"))
 			   (testcase ((name . "4.4 should error") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
-						 (error ((message . "(wrong-type-argument stringp 1)") (type . "error")) "Traceback.*"))))))))
+						 (error ((message . "(wrong-type-argument stringp 1)") (type . "error")) "Traceback.*")))))))
+  (it "should handle special XML chars in attributes"
+	(expect (esxml-buttercup-junit-suite '(describe "suite with &><\"" (it "should handle &><\"" (expect 1 :to-equal 1))))
+			:to-esxml-match
+			`(testsuites
+			  nil
+			  (testsuite ((name . "suite with &><\"") ,timestamp (hostname . ".+")
+						  (tests . "1") (failures . "0") (errors . "0") ,time (skipped . "0"))
+						 (testcase ((name . "should handle &><\"") (classname . "buttercup") ,time)))))))
 
 (describe "Return value"
   (before-each (spy-on 'buttercup-junit--exit-code))

@@ -6,7 +6,7 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 0.4.3
+;; Version: 0.4.4
 ;; Package-Requires: ((buttercup "1.5"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
@@ -161,9 +161,9 @@ suites that will run."
   (let (failures errors time)
 	(insert (make-string buttercup-junit--indent-level ?\s)
 			(format "<testsuite name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\""
-					name
+					(xml-escape-string name)
 					(format-time-string "%Y-%m-%d %T%z" (current-time)) ; timestamp
-					(system-name) ;hostname
+					(xml-escape-string (system-name)) ;hostname
 					(buttercup-suites-total-specs-defined suites)))
 	(setq failures (point-marker))
 	(insert "\" errors=\"")
@@ -241,7 +241,7 @@ and ARG.  A new output buffer is created on the
 	  (`spec-started
 	   (insert (make-string buttercup-junit--indent-level ?\s)
 			   "<testcase name=\""
-			   (buttercup-spec-description arg) ;name
+			   (xml-escape-string (buttercup-spec-description arg)) ;name
 			   "\" classname=\"buttercup\" time=\"")
 	   (push (list arg (point-marker) (current-time)) buttercup-junit--state-stack)
 	   (insert "\">")
@@ -273,10 +273,10 @@ and ARG.  A new output buffer is created on the
 						   message (pp-to-string desc)
 						   type "unknown")))
 			(insert "\n" (make-string buttercup-junit--indent-level ?\s)
-					"<" tag " message=\"" message "\" type=\"" type "\">"
+					"<" tag " message=\"" (xml-escape-string message) "\" type=\"" (xml-escape-string type) "\">"
 					"Traceback (most recent call last):\n")
 			(dolist (frame stack)
-			  (insert (format "  %S" (cdr frame)) "\n"))
+			  (insert (xml-escape-string (format "  %S" (cdr frame)) "\n")))
 			(insert "</" tag ">\n")))
 		 (`pending
 		  (insert "\n" (make-string buttercup-junit--indent-level ?\s)
