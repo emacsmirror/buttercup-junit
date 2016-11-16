@@ -45,6 +45,7 @@
 
 (require 'pcase)
 (or (require 'cl-lib nil t) (require 'cl))
+(require 'xml)
 (require 'buttercup)
 
 (defgroup buttercup-junit nil
