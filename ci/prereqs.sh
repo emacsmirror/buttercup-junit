@@ -11,7 +11,6 @@ emacs_build_deps="libncurses5-dev texinfo liblockfile-dev librsvg2-dev \
 install_prereqs() {
 	if [ ! "$once" ]; then
 		# Install Emacs build deps
-		sudo apt-get -qq update
 		sudo DEBIAN_FRONTEND=noninteractive apt-get -y -qq install $emacs_build_deps
 		once="once"
 	else
@@ -21,6 +20,8 @@ install_prereqs() {
 
 set -e
 set -v
+
+sudo apt-get -qq update
 
 # sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq libncurses5 liblockfile1 librsvg2-2 libgif4 libtiff5 libm17n-0 libotf0 libgpm2 libdbus-1-3 imagemagick libgnutls28 libxml2 libselinux1 libmagick\\+\\+6 libgconf-2-4 libasound2 libacl1 zlib1g libxpm4
 # libpng12 libjpeg62-turbo
@@ -53,12 +54,12 @@ for ver in 25.1 24.5 24.4 24.3; do
 		echo emacs-$ver already installed
 	else
 		install_prereqs
-		echo evm install emacs-$ver
+		#echo evm install emacs-$ver
 		evm install emacs-$ver  2>&1 | tee emacs-$ver.log | cat -n | sed -n /000/p
 	fi
 	#cask install
 done
 
 # leave emacs-25.1 selected
-echo evm use emacs-25.1
+#echo evm use emacs-25.1
 evm use emacs-25.1
