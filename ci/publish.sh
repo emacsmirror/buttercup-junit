@@ -9,12 +9,13 @@ $0 [OPTIONS] [-e user.email] [-u user.name] [-d GITDIR [-n]] PACKAGEFILE [PACKAG
   -u : Set git config option user.name
   -d : Use GITDIR for the clone of olanilsson.bitbucket.org instead of a tempdir
   -n : Use an existing clone of olanilsson.bitbucket.org at GITDIR instead of cloning
+  -P : Do not push to olanilsson.bitbucket.org
   -h : Print this help message
 EOF
 	[ "$1" ] && exit $1
 }
 
-while getopts "u:e:d:nhvc" opt ; do
+while getopts "u:e:d:nhvcP" opt ; do
 	case $opt in
 		c) continue=1       ;;
 		e) usermail=$OPTARG ;;
@@ -22,6 +23,7 @@ while getopts "u:e:d:nhvc" opt ; do
 		n) noclone=1        ;;
 		u) username=$OPTARG	;;
 		v) verbose=1        ;;
+		P) nopush=1         ;;
 		h) usage 0 ;;
 		*) usage 1 ;;
 	esac
@@ -61,4 +63,4 @@ for pack in $@; do
 		grep -q "New package has smaller version:" deployout && [ "$continue" ] || exit $errcode
 	fi
 done
-git -C $dest push origin
+[ "$nopush" ] || git -C $dest push origin
