@@ -30,5 +30,5 @@ deployment:
         branch: /.*/
         commands:
             - evm use emacs-25.1 || evm install --use emacs-25.1
-            - ci/publish.sh -P -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
+            - ci/publish.sh -v -P -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
 
