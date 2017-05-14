@@ -24,11 +24,11 @@ deployment:
     bitbucket:
         branch: master
         commands:
-            - evm use emacs-25.1 || evm install --use emacs-25.1
+            - evm use emacs-25.2 || evm install --use emacs-25.2
             - ci/publish.sh -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
     publish-test:
         branch: /.*/
         commands:
-            - evm use emacs-25.1 || evm install --use emacs-25.1
+            - evm use emacs-25.2 || evm install --use emacs-25.2
             - ci/publish.sh -v -P -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
 

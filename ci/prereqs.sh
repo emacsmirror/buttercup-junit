@@ -40,7 +40,7 @@ export with_x_toolkit=n
 export with_xml2=y
 
 # Install one Emacs version, why not the latest release
-evm use emacs-25.1 || { install_prereqs; evm install --use emacs-25.1 >emacs-25.1.log 2>&1 ; }
+evm use emacs-25.2 || { install_prereqs; evm install --use emacs-25.2 >emacs-25.2.log 2>&1 ; }
 if [ -d ~/.cask/.git ]; then
 	#git -C ~/.cask/ pull
 	cask upgrade-cask
@@ -49,7 +49,7 @@ else
 fi
 
 # InstalL the required Emacs versions from source
-for ver in 25.1 24.5 24.4 24.3; do
+for ver in 25.2 25.1 24.5 24.4 24.3; do
 	if 	evm use emacs-$ver ; then
 		echo emacs-$ver already installed
 	else
@@ -60,6 +60,6 @@ for ver in 25.1 24.5 24.4 24.3; do
 	#cask install
 done
 
-# leave emacs-25.1 selected
-#echo evm use emacs-25.1
-evm use emacs-25.1
+# leave emacs-25.2 selected
+#echo evm use emacs-25.2
+evm use emacs-25.2
