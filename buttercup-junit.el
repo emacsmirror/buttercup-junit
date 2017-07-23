@@ -44,7 +44,7 @@
 ;;; Code:
 
 (require 'pcase)
-(or (require 'cl-lib nil t) (require 'cl))
+(require 'cl-lib)
 (require 'xml)
 (require 'buttercup)
 
@@ -95,7 +95,7 @@ as the last item in `command-line-args-left'."
 	  (setq argument (cadr option-elt))
 	  (setcdr option-elt (cddr option-elt))
 	  (setq command-line-args-left
-			(remove* option command-line-args-left :test #'string= :count 1))
+			(cl-remove option command-line-args-left :test #'string= :count 1))
 	  (setq option-elt (member option command-line-args-left)))
 	argument))
 
@@ -179,7 +179,7 @@ suites that will run."
 	(insert (format "\" skipped=\"%d\" >"
 					(buttercup-suites-total-specs-pending suites))
 			"\n")
-	(incf buttercup-junit--indent-level)
+	(cl-incf buttercup-junit--indent-level)
 	(push (list name suites failures errors time (current-time)) buttercup-junit--state-stack)))
 
 (defun buttercup-junit--close-testsuite (suite)
@@ -207,8 +207,8 @@ that will run."
   "Insert the closing tag of the testsuite NAME.
 SUITES is a list of `buttercup-suite' structs for all the suites
 that will run."
-  (decf buttercup-junit--indent-level)
-  (destructuring-bind (orig-name orig-suites failures errors time start-time)
+  (cl-decf buttercup-junit--indent-level)
+  (cl-destructuring-bind (orig-name orig-suites failures errors time start-time)
 	  (pop buttercup-junit--state-stack)
 	(ignore orig-suites)
 	(unless (string= name orig-name) (error "Corrupted buttercup-junit--state-stack"))
@@ -239,7 +239,7 @@ and ARG.  A new output buffer is created on the
 	   (set-buffer-file-coding-system 'utf-8)
 	   (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 			   "<testsuites>\n")
-	   (incf buttercup-junit--indent-level)
+	   (cl-incf buttercup-junit--indent-level)
 	   (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
 		 (buttercup-junit--open-outer-testsuite buttercup-junit-master-suite arg)))
 	  ;; suite-started -- A suite is starting. The argument is the suite.
@@ -255,11 +255,11 @@ and ARG.  A new output buffer is created on the
 			   "\" classname=\"buttercup\" time=\"")
 	   (push (list arg (point-marker) (current-time)) buttercup-junit--state-stack)
 	   (insert "\">")
-	   (incf buttercup-junit--indent-level))
+	   (cl-incf buttercup-junit--indent-level))
 	  ;; spec-done -- A spec has finished executing. The argument is the
 	  ;;   spec.
 	  (`spec-done
-	   (destructuring-bind (orig time start-time) (pop buttercup-junit--state-stack)
+	   (cl-destructuring-bind (orig time start-time) (pop buttercup-junit--state-stack)
 		 (unless (eq arg orig) (error "Corrupted stack buttercup-junit--state-stack"))
 		 (save-excursion
 		   (buttercup-junit--insert-at time
@@ -291,7 +291,7 @@ and ARG.  A new output buffer is created on the
 		 (`pending
 		  (insert "\n" (make-string buttercup-junit--indent-level ?\s)
 				  "<skipped/>\n")))
-	   (decf buttercup-junit--indent-level)
+	   (cl-decf buttercup-junit--indent-level)
 	   (insert (if (bolp) (make-string buttercup-junit--indent-level ?\s) "") "</testcase>\n"))
 	  ;; suite-done -- A suite has finished. The argument is the spec.
 	  (`suite-done
@@ -300,7 +300,7 @@ and ARG.  A new output buffer is created on the
 	  (`buttercup-done
 	   (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
 		 (buttercup-junit--close-outer-testsuite buttercup-junit-master-suite arg))
-	   (decf buttercup-junit--indent-level)
+	   (cl-decf buttercup-junit--indent-level)
 	   (insert (make-string buttercup-junit--indent-level ?\s)
 			   "</testsuites>\n")
 	   (when buttercup-junit--to-stdout
