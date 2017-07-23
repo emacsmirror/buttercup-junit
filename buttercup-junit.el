@@ -27,7 +27,7 @@
 
 ;; Print buttercup test results to JUnit XML report files.
 ;;
-;; emacs -batch -L . -f package-initialize -f buttercup-junit-run-discover [buttercup-options]
+;; `emacs -batch -L . -f package-initialize -f buttercup-junit-run-discover [buttercup-options]'
 ;;
 ;; buttercup-junit-run-discover can be configured with the following command line options:
 ;;
