@@ -24,9 +24,10 @@
 
 ;;; Code:
 
-;(require 'cl-lib)
+(require 'cl-lib)
 (require 'buttercup)
 (require 'buttercup-junit)
+(require 'cl) ; required by esxml
 (require 'esxml)
 (require 'utils-test-buttercup-junit)
 
@@ -50,7 +51,7 @@
   
   (it "Passes command line argument to buttercup-run-discover"
 	(let* ((command-line-args-left '("foo" "bar" "baz"))
-		   (before (copy-list command-line-args-left)))
+		   (before (cl-copy-list command-line-args-left)))
 	  (expect (buttercup-junit-run-discover) :to-have-same-items-as before)
 	  (expect 'buttercup-run-discover :to-have-been-called)))
 

@@ -24,7 +24,7 @@
 
 ;;; Code:
 
-(or (require 'cl-lib nil t) (require 'cl))
+(require 'cl-lib)
 (require 'buttercup)
 (require 'esxml)
 
@@ -39,12 +39,12 @@ in the same order."
 	(let (p)
 	  ;; cl-dolist is not in Emacs 24.2, so use a wrapping block.
 	  ;; cl-block is not in Emacs 24.2 either.
-	  (block nil
+	  (cl-block nil
 		(dolist (a attribs '(t . "Attrs should not match"))
 		  (or (and (setq p (assoc (car a) pattern))
 				   (string-match (cdr p) (cdr a)))
-			  (return (cons nil (format "%s=\"%s\" should match %s=\"%s\""
-										(car a) (cdr a) (car p) (cdr p))))))))))
+			  (cl-return (cons nil (format "%s=\"%s\" should match %s=\"%s\""
+										   (car a) (cdr a) (car p) (cdr p))))))))))
 		
 (defun esxml-tag-match (tag pattern)
   "Match a esxml element TAG against PATTERN."
@@ -58,7 +58,7 @@ in the same order."
 		 (setq tag (cddr tag)
 			   pattern (cddr pattern))
 		 (if (null tag) (cons t "Element and pattern should not match")
-		   (do ; cl-do is not in emacs 24.2
+		   (cl-do
 			   ((subtag (car tag) (car tag))
 				(subpat (car pattern) (car pattern)))
 			   ((not (and (pop tag) (pop pattern))) (cons t "Element and pattern should not match"))
@@ -69,7 +69,7 @@ in the same order."
 								   ((listp subtag) (esxml-tag-match subtag subpat))
 								   (t (error "Unknown type")))))
 			   (unless (car val-cons)
-				 (return val-cons))))))))
+				 (cl-return val-cons))))))))
 
 (describe "The esxml-matcher"
   (it "should error if either side is less than length 2"
@@ -95,7 +95,7 @@ in the same order."
 		  total)
 	  (spy-on 'esxml-tag-match :and-call-through)
 	  (dotimes (i 10)
-		(setq total (append (copy-list top) (make-list i sub)))
+		(setq total (append (cl-copy-list top) (make-list i sub)))
 		(expect (esxml-tag-match total total) :to-equal '(t . "Element and pattern should not match"))
 		(expect (spy-calls-count 'esxml-tag-match) :to-equal (1+ i))
 		(spy-calls-reset 'esxml-tag-match))))
