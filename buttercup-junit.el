@@ -51,7 +51,7 @@
 (defgroup buttercup-junit nil
   "buttercup-junit customizations."
   :group 'buttercup)
-  
+
 (defcustom buttercup-junit-result-file "results.xml"
   "Default result file for buttercup-junit."
   :group 'buttercup-junit
@@ -72,12 +72,12 @@
   "Whether to print the xml file to stdout as well.")
 
 (defvar buttercup-junit-master-suite nil
-  "An extra outer testsuite with this name is added to the report
-  if `buttercup-junit-master-suite' is set to a non-empty
-  string.")
+  "Name of wrapping test suite.
+An extra outer testsuite with this name is added to the report if
+`buttercup-junit-master-suite' is set to a non-empty string.")
 
 (defsubst buttercup-junit--nonempty-string-p (object)
-  "Return t if OBJECT is a non-empty string. "
+  "Return non-nil if OBJECT is a non-empty string."
   (and (stringp object) (not (string= object ""))))
 
 (defun buttercup-junit--extract-argument-option (option)
@@ -125,6 +125,11 @@ SUITE' in `commandline-args-left'"
 
 ;;;###autoload
 (defun buttercup-junit-at-point (&optional outer)
+  "Execute `buttercup-run-at-point' with `buttercup-junit-reporter' set.
+The JUnit report will be written to thte file specified by
+`buttercup-junit-result-file'.  If OUTER or
+`buttercup-junit-master-suite' is a non-empty string, a wrapper
+testsuite of that name will be added."
   (interactive "souter: ")
   (let ((command-line-args-left (list "--xmlfile" buttercup-junit-result-file)))
 	(when outer
@@ -157,7 +162,7 @@ suites that will run."
 
 (defun buttercup-junit--open-testsuite-impl (name suites)
     "Insert the opening tag of testsuite NAME.
-INNER-SUITES is a list of `buttercup-suite' structs for all the
+SUITES is a list of `buttercup-suite' structs for all the
 suites that will run."
   (let (failures errors time)
 	(insert (make-string buttercup-junit--indent-level ?\s)
@@ -182,7 +187,9 @@ suites that will run."
   (buttercup-junit--close-testsuite-impl (buttercup-suite-description suite) (list suite)))
 
 (defun buttercup-junit--close-outer-testsuite (name suites)
-  "Insert the closing tag of the fake outer testsuite NAME."
+  "Insert the closing tag of the fake outer testsuite NAME.
+SUITES is a list of `buttercup-suite' structs for all the suites
+that will run."
   (buttercup-junit--close-testsuite-impl name suites))
 
 (declare-function buttercup-suites-total-specs-error nil (suite-list))
@@ -197,7 +204,9 @@ suites that will run."
 	  nspecs)))
 
 (defun buttercup-junit--close-testsuite-impl (name suites)
-  "Insert the closing tag of the testsuite NAME."
+  "Insert the closing tag of the testsuite NAME.
+SUITES is a list of `buttercup-suite' structs for all the suites
+that will run."
   (decf buttercup-junit--indent-level)
   (destructuring-bind (orig-name orig-suites failures errors time start-time)
 	  (pop buttercup-junit--state-stack)
@@ -305,7 +314,7 @@ and ARG.  A new output buffer is created on the
 
 (defun buttercup-junit--exit-code ()
   "Signal error so script return value is failed.
-This function exists only for testability reasons, "
+This function exists only for testability reasons."
 	(error ""))
 
 (provide 'buttercup-junit)
