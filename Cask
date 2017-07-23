@@ -1,7 +1,7 @@
 (source gnu)
 (source melpa)
 
-(package "buttercup-junit" "0.4.4" "JUnit reporting for Buttercup")
+(package-file "buttercup-junit.el")
 
 (depends-on "buttercup")
 
