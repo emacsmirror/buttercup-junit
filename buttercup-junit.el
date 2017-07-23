@@ -286,7 +286,7 @@ and ARG.  A new output buffer is created on the
 					"<" tag " message=\"" (xml-escape-string message) "\" type=\"" (xml-escape-string type) "\">"
 					"Traceback (most recent call last):\n")
 			(dolist (frame stack)
-			  (insert (xml-escape-string (format "  %S" (cdr frame)) "\n")))
+			  (insert (xml-escape-string (format "  %S" (cdr frame))) "\n"))
 			(insert "</" tag ">\n")))
 		 (`pending
 		  (insert "\n" (make-string buttercup-junit--indent-level ?\s)
