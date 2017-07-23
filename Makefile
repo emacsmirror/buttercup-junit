@@ -1,5 +1,5 @@
 
-export PATH:=$(PATH):/home/olani/.cask/bin
+export PATH:=$(PATH):$(HOME)/.cask/bin
 
 CWD := $(shell pwd)
 CASK = cask
