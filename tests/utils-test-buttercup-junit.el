@@ -71,21 +71,15 @@ in the same order."
 			   (unless (car val-cons)
 				 (cl-return val-cons))))))))
 
-(cl-defmacro expect-error (expr &key (error-symbol 'error))
-  "Shortcut for `(expect (lambda () ...) :to-throw)'.
-Compability macro from
-https://github.com/jorgenschaefer/emacs-buttercup/issues/41#issuecomment-319295924"
-  `(expect (lambda () ,expr) :to-throw ',error-symbol))
-
 (describe "The esxml-matcher"
   (it "should error if either side is less than length 2"
-	(expect-error (esxml-tag-match '(foo) '(foo)) :error-symbol error)
-	(expect-error (esxml-tag-match '(foo bar) '(foo)) :error-symbol error))
+	(expect (esxml-tag-match '(foo) '(foo)) :to-throw 'error)
+	(expect (esxml-tag-match '(foo bar) '(foo)) :to-throw 'error))
   (it "should fail if the cars don't match"
 	(expect (esxml-tag-match '(foo bar) '(bar baz)) :to-equal `(nil . "foo and bar should match")))
   (it "should throw an error if either sides cadr is not valid attrs"
-	(expect-error (esxml-tag-match '(foo bar) '(foo)) :error-symbol error)
-	(expect-error (esxml-tag-match '(foo ((bar . "foo"))) '(foo ((bar "baz")))) :error-symbol error))
+	(expect (esxml-tag-match '(foo bar) '(foo)) :to-throw 'error)
+	(expect (esxml-tag-match '(foo ((bar . "foo"))) '(foo ((bar "baz")))) :to-throw 'error))
   (it "should fail if the attrs dont match"
 	(expect (esxml-tag-match '(foo ((bar . "foo"))) '(foo ((bar . "baz") (qux . "q"))))
 			:to-equal '(nil . "attrs are not equal length"))

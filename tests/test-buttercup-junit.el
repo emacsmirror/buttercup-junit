@@ -57,7 +57,7 @@
 
   (it "Fails if given an --xmlfile option without argument"
 	(setq command-line-args-left '("foo" "bar" "baz" "--xmlfile"))
-	(expect #'buttercup-junit-run-discover :to-throw 'error)
+	(expect (buttercup-junit-run-discover) :to-throw 'error)
 	(expect 'buttercup-run-discover :not :to-have-been-called))
   
   (describe "Removes --xmlfile FILE from command-line-args-left before calling buttercup-run-discover"
