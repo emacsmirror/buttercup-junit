@@ -104,6 +104,7 @@
   "Execute BODY with all buttercup-junit state vars locally bound."
   (declare (debug t) (indent defun))
   `(let ((buttercup-reporter #'buttercup-junit-reporter)
+		 (buttercup-warning-buffer-name " *Buttercup-Junit-Warnings*")
 		 buttercup-junit-result-file
 		 buttercup-junit--buffer
 		 buttercup-junit--to-stdout
