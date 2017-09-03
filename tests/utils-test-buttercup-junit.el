@@ -25,7 +25,7 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'buttercup)
+(eval-and-compile (require 'buttercup))
 (require 'esxml)
 
 (defun esxml-attribs-match (attribs pattern)
@@ -101,11 +101,8 @@ in the same order."
 		(spy-calls-reset 'esxml-tag-match))))
   )
 
-(defvar esxml-matcher-message)
-
 (buttercup-define-matcher :to-esxml-match (value pattern)
-  (let (esxml-matcher-message)
-	(esxml-tag-match value pattern)))
+  (esxml-tag-match (funcall value) (funcall pattern)))
 
 (provide 'utils-test-buttercup-junit)
 ;;; utils-test-buttercup-junit.el ends here
