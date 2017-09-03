@@ -170,6 +170,12 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 
 (defvar test-buttercup-junit-timestamp-re "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [012][0-9]:[0-5][0-9]:[0-5][0-9]\\+[012][0-9][0-5][0-9]")
 
+(describe "buttercup-junit--escape-string"
+  (it "should handle unprintable characters"
+	(expect (buttercup-junit--escape-string "") :to-equal "^A^B^Z"))
+  (it "should handle xml entities"
+	(expect (buttercup-junit--escape-string "\"'&") :to-equal "&quot;&apos;&amp;")))
+
 (describe "JUnit XML output"
   :var ((timestamp (cons 'timestamp test-buttercup-junit-timestamp-re))
 		(time (cons 'time "[0-9]+\\.[0-9]+")))

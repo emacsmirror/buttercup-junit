@@ -160,6 +160,21 @@ INNER-SUITES is a list of `buttercup-suite' structs for all the
 suites that will run."
   (buttercup-junit--open-testsuite-impl name inner-suites))
 
+(defun buttercup-junit--escape-string (string)
+  "Convert STRING into a string containing valid XML character data.
+Convert all non-printable characters in string to a `^A'
+sequence, then pass the result to `xml-escape-string'."
+  (xml-escape-string
+   (with-temp-buffer
+	 (insert string)
+	 (goto-char 1)
+	 (while (not (eobp))
+	   (if (aref printable-chars (char-after))
+		   (forward-char)
+		 (insert (format "^%c" (+ (char-after) ?A -1)))
+		 (delete-char 1)))
+	 (buffer-string))))
+
 (defun buttercup-junit--open-testsuite-impl (name suites)
     "Insert the opening tag of testsuite NAME.
 SUITES is a list of `buttercup-suite' structs for all the
@@ -167,9 +182,9 @@ suites that will run."
   (let (failures errors time)
 	(insert (make-string buttercup-junit--indent-level ?\s)
 			(format "<testsuite name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\""
-					(xml-escape-string name)
+					(buttercup-junit--escape-string name)
 					(format-time-string "%Y-%m-%d %T%z" (current-time)) ; timestamp
-					(xml-escape-string (system-name)) ;hostname
+					(buttercup-junit--escape-string (system-name)) ;hostname
 					(buttercup-suites-total-specs-defined suites)))
 	(setq failures (point-marker))
 	(insert "\" errors=\"")
@@ -251,7 +266,7 @@ and ARG.  A new output buffer is created on the
 	  (`spec-started
 	   (insert (make-string buttercup-junit--indent-level ?\s)
 			   "<testcase name=\""
-			   (xml-escape-string (buttercup-spec-description arg)) ;name
+			   (buttercup-junit--escape-string (buttercup-spec-description arg)) ;name
 			   "\" classname=\"buttercup\" time=\"")
 	   (push (list arg (point-marker) (current-time)) buttercup-junit--state-stack)
 	   (insert "\">")
@@ -283,10 +298,12 @@ and ARG.  A new output buffer is created on the
 						   message (pp-to-string desc)
 						   type "unknown")))
 			(insert "\n" (make-string buttercup-junit--indent-level ?\s)
-					"<" tag " message=\"" (xml-escape-string message) "\" type=\"" (xml-escape-string type) "\">"
+					"<" tag " message=\"" (buttercup-junit--escape-string message) "\""
+					" type=\"" (buttercup-junit--escape-string type) "\">"
 					"Traceback (most recent call last):\n")
 			(dolist (frame stack)
-			  (insert (xml-escape-string (format "  %S" (cdr frame))) "\n"))
+			  (insert (buttercup-junit--escape-string (format "  %S" (cdr frame)))
+					  "\n"))
 			(insert "</" tag ">\n")))
 		 (`pending
 		  (insert "\n" (make-string buttercup-junit--indent-level ?\s)
