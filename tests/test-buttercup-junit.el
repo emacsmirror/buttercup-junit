@@ -176,6 +176,15 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
   (it "should handle xml entities"
 	(expect (buttercup-junit--escape-string "\"'&") :to-equal "&quot;&apos;&amp;")))
 
+(cl-defun testsuite-attrs (name &key
+								(fail 0) (err 0) (skip 0) (tests (+ fail skip err))
+								(stamp test-buttercup-junit-timestamp-re)
+								(host ".+") (time "[0-9]+\\.[0-9]+"))
+  "Return an esxml attribute alist for testsuite tags."
+  `((name . ,name) (timestamp . ,stamp) (hostname . ,host)
+	(tests . ,(number-to-string tests)) (failures . ,(number-to-string fail))
+	(errors . ,(number-to-string err)) (time . ,time) (skipped . ,(number-to-string skip))))
+
 (describe "JUnit XML output"
   :var ((timestamp (cons 'timestamp test-buttercup-junit-timestamp-re))
 		(time (cons 'time "[0-9]+\\.[0-9]+")))
@@ -185,9 +194,7 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite1) :to-esxml-match
 			`(testsuites
 			  nil
-			  (testsuite
-			   ((name . "suite1") (timestamp . ,test-buttercup-junit-timestamp-re) (hostname . ".+")
-				(tests . "3") (failures . "1") (errors . "0") (time . "[0-9]+\\.[0-9]+") (skipped . "1"))
+			  (testsuite ,(testsuite-attrs "suite1" :tests 3 :fail 1 :skip 1)
 			   (testcase ((name . "1.1 should pass") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+")))
 			   (testcase ((name . "1.2 should skip") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
 						 (skipped nil))
@@ -197,22 +204,16 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite2) :to-esxml-match
 			`(testsuites
 			  nil
-			  (testsuite
-			   ((name . "suite1") ,timestamp (hostname . ".+")
-				(tests . "3") (failures . "0") (errors . "0") (time . "[0-9]+\\.[0-9]+") (skipped . "0"))
+			  (testsuite ,(testsuite-attrs "suite1" :tests 3)
 			   (testcase ((name . "1.1 should pass") (classname . "buttercup") ,time))
-			   (testsuite
-				((name . "suite2") ,timestamp (hostname . ".+")
-				 (tests . "1") (failures . "0") (errors . "0") (time . "[0-9]+\\.[0-9]+") (skipped . "0")))
+			   (testsuite ,(testsuite-attrs "suite2" :tests 1))
 				(testcase ((name . "1.2 should pass") (classname . "buttercup") ,time)))
 			  (testcase ((name . "1.3 should fail") (classname . "buttercup") ,time)))))
   (it "should handle erroring testcases"
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite3) :to-esxml-match
 			`(testsuites
 			  nil
-			  (testsuite
-			   ((name . "suite1") ,timestamp (hostname . ".+")
-				(tests . "1") (failures . "0") (errors . "1") ,time (skipped . "0"))
+			  (testsuite ,(testsuite-attrs "suite1" :err 1)
 			   (testcase ((name . "should error") (classname . "buttercup") ,time)
 						 (error ((message . "(wrong-type-argument stringp 1)") (type . "error")) "Traceback.*"))))))
   (it "should report correct test state numbers when using outer-suite"
@@ -220,12 +221,8 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 	(expect (esxml-buttercup-junit-suite  "outer" test-buttercup-junit-suite4) :to-esxml-match
 			`(testsuites
 			  nil
-			  (testsuite
-			   ((name . "outer") ,timestamp (hostname . ".+")
-				(tests . "4") (failures . "1") (errors . "1") ,time (skipped . "1"))
-			   (testsuite
-				((name . "suite4") ,timestamp (hostname . ".+")
-				(tests . "4") (failures . "1") (errors . "1") ,time (skipped . "1"))
+			  (testsuite ,(testsuite-attrs "outer" :tests 4 :fail 1 :skip 1 :err 1)
+				(testsuite ,(testsuite-attrs "suite4" :tests 4 :fail 1 :skip 1 :err 1)
 			   (testcase ((name . "4.1 should pass") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+")))
 			   (testcase ((name . "4.2 should skip") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
 						 (skipped nil))
@@ -238,8 +235,7 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 			:to-esxml-match
 			`(testsuites
 			  nil
-			  (testsuite ((name . "suite with &><\"") ,timestamp (hostname . ".+")
-						  (tests . "1") (failures . "0") (errors . "0") ,time (skipped . "0"))
+			  (testsuite ,(testsuite-attrs "suite with &><\"" :tests 1)
 						 (testcase ((name . "should handle &><\"") (classname . "buttercup") ,time)))))))
 
 (describe "Return value"
