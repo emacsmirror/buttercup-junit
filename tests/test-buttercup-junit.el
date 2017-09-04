@@ -185,6 +185,13 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 	(tests . ,(number-to-string tests)) (failures . ,(number-to-string fail))
 	(errors . ,(number-to-string err)) (time . ,time) (skipped . ,(number-to-string skip))))
 
+(cl-defun testcase (name &rest contains &key (class "buttercup") (time "[0-9]+\\.[0-9]+")
+						 skip &allow-other-keys)
+  (let ((attrs `((name . ,name) (classname . ,class) (time . ,time))))
+	(cond (skip `(testcase ,attrs (skipped nil)))
+		  (contains `(testcase ,attrs ,@contains))
+		  (t `(testcase ,attrs)))))
+
 (describe "JUnit XML output"
   :var ((timestamp (cons 'timestamp test-buttercup-junit-timestamp-re))
 		(time (cons 'time "[0-9]+\\.[0-9]+")))
@@ -195,27 +202,28 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 			`(testsuites
 			  nil
 			  (testsuite ,(testsuite-attrs "suite1" :tests 3 :fail 1 :skip 1)
-			   (testcase ((name . "1.1 should pass") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+")))
-			   (testcase ((name . "1.2 should skip") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
-						 (skipped nil))
-			   (testcase ((name . "1.3 should fail") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
-						 (failed ((message . "Expected 2 to `equal' 1") (type . "type")) "Traceback .*"))))))
+				,(testcase "1.1 should pass")
+				,(testcase "1.2 should skip" :skip t)
+				,(testcase "1.3 should fail"
+						   '(failed ((message . "Expected 2 to `equal' 1") (type . "type"))
+									"Traceback .*"))))))
   (it "should handle nested describes"
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite2) :to-esxml-match
 			`(testsuites
 			  nil
 			  (testsuite ,(testsuite-attrs "suite1" :tests 3)
-			   (testcase ((name . "1.1 should pass") (classname . "buttercup") ,time))
-			   (testsuite ,(testsuite-attrs "suite2" :tests 1))
-				(testcase ((name . "1.2 should pass") (classname . "buttercup") ,time)))
-			  (testcase ((name . "1.3 should fail") (classname . "buttercup") ,time)))))
+				,(testcase "1.1 should pass")
+				(testsuite ,(testsuite-attrs "suite2" :tests 1)
+  						   ,(testcase "2.1 should pass"))
+				,(testcase "1.2 should pass")))))
   (it "should handle erroring testcases"
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite3) :to-esxml-match
 			`(testsuites
 			  nil
 			  (testsuite ,(testsuite-attrs "suite1" :err 1)
-			   (testcase ((name . "should error") (classname . "buttercup") ,time)
-						 (error ((message . "(wrong-type-argument stringp 1)") (type . "error")) "Traceback.*"))))))
+			   ,(testcase "should error"
+						  '(error ((message . "(wrong-type-argument stringp 1)")
+								   (type . "error")) "Traceback.*"))))))
   (it "should report correct test state numbers when using outer-suite"
 	;; neither the error numbering nor the outer suite works yet
 	(expect (esxml-buttercup-junit-suite  "outer" test-buttercup-junit-suite4) :to-esxml-match
@@ -223,20 +231,21 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 			  nil
 			  (testsuite ,(testsuite-attrs "outer" :tests 4 :fail 1 :skip 1 :err 1)
 				(testsuite ,(testsuite-attrs "suite4" :tests 4 :fail 1 :skip 1 :err 1)
-			   (testcase ((name . "4.1 should pass") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+")))
-			   (testcase ((name . "4.2 should skip") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
-						 (skipped nil))
-			   (testcase ((name . "4.3 should fail") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
-						 (failed ((message . "Expected 2 to `equal' 1") (type . "type")) "Traceback .*"))
-			   (testcase ((name . "4.4 should error") (classname . "buttercup") (time . "[0-9]+\\.[0-9]+"))
-						 (error ((message . "(wrong-type-argument stringp 1)") (type . "error")) "Traceback.*")))))))
+			      ,(testcase "4.1 should pass")
+			      ,(testcase "4.2 should skip" :skip t)
+			      ,(testcase "4.3 should fail"
+							 '(failed ((message . "Expected 2 to `equal' 1")
+									   (type . "type")) "Traceback .*"))
+				  ,(testcase "4.4 should error"
+							 '(error ((message . "(wrong-type-argument stringp 1)")
+									  (type . "error")) "Traceback.*")))))))
   (it "should handle special XML chars in attributes"
 	(expect (esxml-buttercup-junit-suite '(describe "suite with &><\"" (it "should handle &><\"" (expect 1 :to-equal 1))))
 			:to-esxml-match
 			`(testsuites
 			  nil
 			  (testsuite ,(testsuite-attrs "suite with &><\"" :tests 1)
-						 (testcase ((name . "should handle &><\"") (classname . "buttercup") ,time)))))))
+						 ,(testcase "should handle &><\""))))))
 
 (describe "Return value"
   (before-each (spy-on 'buttercup-junit--exit-code))
