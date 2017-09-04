@@ -6,8 +6,8 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 0.4.5
-;; Package-Requires: ((buttercup "1.5"))
+;; Version: 0.5.0
+;; Package-Requires: ((buttercup "20170901.422"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
 ;; This program is free software; you can redistribute it and/or modify
