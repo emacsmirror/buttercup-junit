@@ -166,7 +166,7 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 									   (it "4.3 should fail"
 										 (expect 2 :to-equal 1))
 									   (it "4.4 should error"
-										 (expect (string= 1 2) :to-be-thruthy))))
+										 (expect (string= 1 2) :to-be-truthy))))
 
 (defvar test-buttercup-junit-timestamp-re "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [012][0-9]:[0-5][0-9]:[0-5][0-9]\\+[012][0-9][0-5][0-9]")
 
@@ -205,7 +205,7 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 				,(testcase "1.1 should pass")
 				,(testcase "1.2 should skip" :skip t)
 				,(testcase "1.3 should fail"
-						   '(failed ((message . "Expected 2 to `equal' 1") (type . "type"))
+						   '(failed ((message . "Expected `2' to be `equal' to `1'.*") (type . "type"))
 									"Traceback .*"))))))
   (it "should handle nested describes"
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite2) :to-esxml-match
@@ -234,7 +234,7 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 			      ,(testcase "4.1 should pass")
 			      ,(testcase "4.2 should skip" :skip t)
 			      ,(testcase "4.3 should fail"
-							 '(failed ((message . "Expected 2 to `equal' 1")
+							 '(failed ((message . "Expected `2' to be `equal' to `1'.*")
 									   (type . "type")) "Traceback .*"))
 				  ,(testcase "4.4 should error"
 							 '(error ((message . "(wrong-type-argument stringp 1)")
