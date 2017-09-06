@@ -23,8 +23,6 @@ TESTOPTS = -L . -L tests -batch -l buttercup-junit -f package-initialize
 JUNIT ?= buttercup-junit.xml
 
 cask-install:
-	$(EMACS) --version
-	$(CASK) --version
 	$(CASK) install
 
 build: cask-install
