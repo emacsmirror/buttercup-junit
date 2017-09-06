@@ -11,15 +11,48 @@ jobs:
       - CASK: /root/.cask/bin/cask
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - v1-repo-cask-{{ .Branch }}-
+            - v1-repo-cask-
+      - restore_cache:
+          keys:
+            - v1-repo-deps-{{ .Branch }}-
+            - v1-repo-deps-
       - run:
           name: Install cask
           environment:
             - CASKURL: https://raw.githubusercontent.com/cask/cask/master/go
           command: |
-            curl -fsSL $CASKURL | python
+            if [ -f $CASK ] ; then
+                echo $CASK upgrade
+                $CASK upgrade
+            else
+                echo curl -fsSL $CASKURL
+                curl -fsSL $CASKURL | python
+            fi
+            rm -rf /root/.emacs.d/.cask/*/elpa/archives
+            ls -laR /root/.cask /root/.emacs.d/.cask > .cask.hash
             for ever in $EMACSVERSIONS; do
-                CASK_EMACS=/opt/emacs/$ever/bin/emacs $CASK install
+                if [ -d ~/proj/.cask/$ever/elpa ] ; then
+                    echo CASK_EMACS=/opt/emacs/$ever/bin/emacs $CASK update
+                    CASK_EMACS=/opt/emacs/$ever/bin/emacs $CASK update
+                else
+                    echo CASK_EMACS=/opt/emacs/$ever/bin/emacs $CASK install
+                    CASK_EMACS=/opt/emacs/$ever/bin/emacs $CASK install
+                fi
             done
+            rm -rf ~/proj/.cask/*/elpa/archives
+            ls -laR ~/proj/.cask > .elpa.hash
+      - save_cache:
+          key: v1-repo-cask-{{ .Branch }}-{{ checksum ".cask.hash" }}
+          paths:
+            - /root/.cask
+            - /root/.emacs.d/.cask
+      - save_cache:
+          key: v1-repo-deps-{{ .Branch }}-{{ checksum ".elpa.hash" }}
+          paths:
+            - ~/proj/.cask
       - run:
           name: Test Matrix
           command: ./ci/ci-matrix.sh
