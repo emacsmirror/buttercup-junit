@@ -7,11 +7,19 @@ jobs:
     environment:
       - CIRCLE_TEST_REPORTS: ~/proj/test_results
       - EMACS: /opt/emacs/25.2/bin/emacs
+      - EMACSVERSIONS: 25.2 25.1 24.5 24.4 24.3
+      - CASK: /root/.cask/bin/cask
     steps:
       - checkout
       - run:
           name: Install cask
-          command: curl -fsSL https://raw.githubusercontent.com/cask/cask/master/go | python
+          environment:
+            - CASKURL: https://raw.githubusercontent.com/cask/cask/master/go
+          command: |
+            curl -fsSL $CASKURL | python
+            for ever in $EMACSVERSIONS; do
+                CASK_EMACS=/opt/emacs/$ever/bin/emacs $CASK install
+            done
       - run:
           name: Test Matrix
           command: ./ci/ci-matrix.sh
