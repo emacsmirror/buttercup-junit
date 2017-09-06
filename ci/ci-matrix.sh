@@ -19,7 +19,7 @@ for ever in $EVERS; do
 	[ -d $reportdir ] || mkdir -p $reportdir
 	reportfile=$reportdir/junit.xml
 	echo "Run 'make report', writing report to $reportfile"
-	make report OUTER="Emacs ${ever}" JUNIT=$reportfile
+	EMACS=/opt/emacs/$ever/bin/emacs make report OUTER="Emacs ${ever}" JUNIT=$reportfile
 done
 
 exit ${errcount:-0}
