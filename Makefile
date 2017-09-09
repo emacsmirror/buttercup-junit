@@ -37,6 +37,7 @@ test: cask-install
 report: $(JUNIT)
 
 $(JUNIT): cask-install
+	mkdir -p $(@D)
 	$(CASK) emacs $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT) $(if $(OUTER),--outer-suite "$(OUTER)")
 
 stdout:
