@@ -23,8 +23,6 @@ TESTOPTS = -L . -L tests -batch -l buttercup-junit -f package-initialize
 JUNIT ?= buttercup-junit.xml
 
 cask-install:
-	$(EMACS) --version
-	$(CASK) --version
 	$(CASK) install
 
 build: cask-install
@@ -34,12 +32,13 @@ package: cask-install
 	$(CASK) package
 
 test: cask-install
-	$(CASK) emacs $(TESTOPTS) -f buttercup-run-discover
+	$(CASK) emacs $(TESTOPTS) -f buttercup-run-discover tests
 
 report: $(JUNIT)
 
 $(JUNIT): cask-install
-	$(CASK) emacs $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT) $(if $(OUTER),--outer-suite "$(OUTER)")
+	mkdir -p $(@D)
+	$(CASK) emacs $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT) $(if $(OUTER),--outer-suite "$(OUTER)") tests
 
 stdout:
 	$(CASK) emacs $(TESTOPTS) -f buttercup-junit-run-discover --xmlfile $(JUNIT) --junit-stdout --outer-suite foo
