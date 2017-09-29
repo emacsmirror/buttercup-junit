@@ -63,8 +63,10 @@ jobs:
       - run:
           name: Deploy
           command: |
-            if [ ${CIRCLE_BRANCH} = master ]; then
-                ci/publish.sh -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
-            else
-                ci/publish.sh -P -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
+            if [ "${CIRCLE_BUILD_NUM}" ]; then
+                if [ "${CIRCLE_BRANCH}" = master ]; then
+                    ci/publish.sh -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
+                else
+                    ci/publish.sh -P -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
+                fi
             fi
