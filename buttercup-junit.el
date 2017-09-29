@@ -1,13 +1,13 @@
 ;;; buttercup-junit.el --- JUnit reporting for Buttercup -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2016  Ola Nilsson
+;; Copyright (C) 2016-2017  Ola Nilsson
 
 ;; Author: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 0.5.0
-;; Package-Requires: ((buttercup "20170901.422"))
+;; Version: 0.5.1
+;; Package-Requires: ((buttercup "20170929.512"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -207,17 +207,6 @@ SUITES is a list of `buttercup-suite' structs for all the suites
 that will run."
   (buttercup-junit--close-testsuite-impl name suites))
 
-(declare-function buttercup-suites-total-specs-error nil (suite-list))
-(unless (fboundp 'buttercup-suites-total-specs-error)
-  (defun buttercup-suites-total-specs-error (suite-list)
-	"Return the number of errored specs in all suites in SUITE-LIST."
-	(let ((nspecs 0))
-	  (dolist (spec-or-suite (buttercup--specs-and-suites suite-list))
-		(when (and (buttercup-spec-p spec-or-suite)
-				   (eq (buttercup-spec-status spec-or-suite) 'error))
-		  (setq nspecs (1+ nspecs))))
-	  nspecs)))
-
 (defun buttercup-junit--close-testsuite-impl (name suites)
   "Insert the closing tag of the testsuite NAME.
 SUITES is a list of `buttercup-suite' structs for all the suites
@@ -231,7 +220,7 @@ that will run."
 	  (buttercup-junit--insert-at failures
 								  (number-to-string (buttercup-suites-total-specs-failed suites)))
 	  (buttercup-junit--insert-at errors
-								  (number-to-string (buttercup-suites-total-specs-error suites)))
+	                              (number-to-string (buttercup-suites-total-specs-status suites 'error)))
 	  (buttercup-junit--insert-at time
 								  (format "%f" (float-time (time-subtract (current-time) start-time))))))
   (insert (make-string buttercup-junit--indent-level ?\s)
@@ -325,7 +314,7 @@ and ARG.  A new output buffer is created on the
 	   (when buttercup-junit-result-file
 		 (write-file buttercup-junit-result-file))
 	   (unless (zerop (+ (buttercup-suites-total-specs-failed arg)
-					   (buttercup-suites-total-specs-error arg)))
+                         (buttercup-suites-total-specs-status arg 'error)))
 		 (buttercup-junit--exit-code))
 	   ))))
 
@@ -339,4 +328,5 @@ This function exists only for testability reasons."
 ;; Local Variables:
 ;; byte-compile-warnings: (not cl-functions)
 ;; tab-width: 4
+;; indent-tabs-mode: nil
 ;; End:
