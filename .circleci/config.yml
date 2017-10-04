@@ -8,7 +8,7 @@ jobs:
       - CIRCLE_TEST_REPORTS: ~/proj/test_results
       - EMACS: /opt/emacs/25.3/bin/emacs
       - EMACSVERSIONS: 25.3 25.2 25.1 24.5 24.4 24.3
-      - CASK: /root/.cask/bin/cask
+      - CASK: /root/.cask/bin/cask.sh
     steps:
       - checkout
       - restore_cache:
@@ -22,14 +22,14 @@ jobs:
       - run:
           name: Install cask
           environment:
-            - CASKURL: https://raw.githubusercontent.com/cask/cask/master/go
+            - CASKURL: https://raw.githubusercontent.com/snogge/cask/master/go.sh
           command: |
             if [ -f $CASK ] ; then
                 echo $CASK upgrade
                 $CASK upgrade
             else
                 echo curl -fsSL $CASKURL
-                curl -fsSL $CASKURL | python
+                curl -fsSL $CASKURL | /bin/sh
             fi
             rm -rf /root/.emacs.d/.cask/*/elpa/archives
             ls -laR /root/.cask /root/.emacs.d/.cask > .cask.hash
