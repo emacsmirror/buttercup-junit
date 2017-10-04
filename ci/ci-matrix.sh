@@ -10,7 +10,7 @@ errorcounter() {
 
 trap errorcounter ERR
 
-: ${EVERS:="24.3 24.4 24.5 25.1 25.2"}
+: ${EVERS:="24.3 24.4 24.5 25.1 25.2 25.3"}
 for ever in $EVERS; do
 	echo Testing GNU Emacs $ever
 	EMACS=/opt/emacs/$ever/bin/emacs make build
