@@ -28,6 +28,7 @@ jobs:
                 echo $CASK upgrade
                 $CASK upgrade
             else
+                rm -rf ~/.cask
                 echo curl -fsSL $CASKURL
                 curl -fsSL $CASKURL | /bin/sh
             fi
