@@ -1,5 +1,126 @@
+---
+teststeps: &teststeps
+  working_directory: ~/proj
+  steps:
+    - checkout
+    - run: $EMACS --version > .emacsversion
+    - restore_cache:
+        keys:
+          - v1-repo-cask-{{ checksum ".emacsversion" }}-{{ .Branch }}-
+          - v1-repo-cask-{{ checksum ".emacsversion" }}-
+    - run:
+        name: Install cask
+        environment:
+          - CASKURL: https://raw.githubusercontent.com/snogge/cask/master/go.sh
+          - CASK: /root/.cask/bin/cask.sh
+        command: |
+          if [ -f $CASK ] ; then
+            echo $CASK upgrade
+            $CASK upgrade
+          else
+            rm -rf ~/.cask
+            echo curl -fsSL $CASKURL
+            curl -fsSL $CASKURL | /bin/sh
+          fi
+          rm -rf /root/.emacs.d/.cask/*/elpa/archives
+          ls -laR /root/.cask /root/.emacs.d/.cask > .cask.hash
+    - save_cache:
+        key: v1-repo-cask-{{ checksum ".emacsversion" }}-{{ .Branch }}-{{ checksum ".cask.hash" }}
+        paths:
+          - /root/.cask
+          - /root/.emacs.d/.cask
+    - restore_cache:
+        keys:
+          - v1-repo-deps-{{ checksum ".emacsversion" }}-{{ .Branch }}-
+          - v1-repo-deps-{{ checksum ".emacsversion" }}-
+    - run:
+        name: Install Dependencies
+        environment:
+          - CASK: /root/.cask/bin/cask.sh
+        command: |
+          if [ -d $($CASK package-directory) ] ; then
+            echo $CASK update
+            $CASK update
+          else
+            echo $CASK install
+            $CASK install
+          fi
+          rm -rf ~/proj/.cask/*/elpa/archives
+          ls -laR ~/proj/.cask > .elpa.hash
+    - save_cache:
+        key: v1-repo-deps-{{ checksum ".emacsversion" }}-{{ .Branch }}-{{ checksum ".elpa.hash" }}
+        paths:
+          - ~/proj/.cask
+    - run:
+        name: test
+        command: |
+          make build
+          outer=$($EMACS --version | head -1 | tr ' ' '_')
+          make report OUTER="$outer" JUNIT=~/proj/test_results/tests.xml
+    - store_test_results:
+        path: ~/proj/test_results
+    - store_artifacts:
+        path: ~/proj/test_results
+
 version: 2
 jobs:
+  emacs_25_3:
+    docker:
+      - image: olanilsson/emacs-ci:25.3
+    environment:
+      - EMACS: /opt/emacs/25.3/bin/emacs
+      - CASK_EMACS: /opt/emacs/25.3/bin/emacs
+    <<: *teststeps
+  emacs_25_2:
+    docker:
+      - image: olanilsson/emacs-ci:25.2
+    environment:
+      - EMACS: /opt/emacs/25.2/bin/emacs
+      - CASK_EMACS: /opt/emacs/25.2/bin/emacs
+    <<: *teststeps
+  emacs_25_1:
+    docker:
+      - image: olanilsson/emacs-ci:25.1
+    environment:
+      - EMACS: /opt/emacs/25.1/bin/emacs
+      - CASK_EMACS: /opt/emacs/25.1/bin/emacs
+    <<: *teststeps
+  emacs_24_5:
+    docker:
+      - image: olanilsson/emacs-ci:24.5
+    environment:
+      - EMACS: /opt/emacs/24.5/bin/emacs
+      - CASK_EMACS: /opt/emacs/24.5/bin/emacs
+    <<: *teststeps
+  emacs_24_4:
+    docker:
+      - image: olanilsson/emacs-ci:24.4
+    environment:
+      - EMACS: /opt/emacs/24.4/bin/emacs
+      - CASK_EMACS: /opt/emacs/24.4/bin/emacs
+    <<: *teststeps
+  emacs_24_3:
+    docker:
+      - image: olanilsson/emacs-ci:24.3
+    environment:
+      - EMACS: /opt/emacs/24.3/bin/emacs
+      - CASK_EMACS: /opt/emacs/24.3/bin/emacs
+    <<: *teststeps
+  deploy:
+    docker:
+      - image: olanilsson/emacs-ci:25.3
+    environment:
+      - EMACS: /opt/emacs/25.3/bin/emacs
+      - CASK_EMACS: /opt/emacs/25.3/bin/emacs
+    steps:
+      - checkout
+      - run:
+          command: |
+            if [ "${CIRCLE_BRANCH}" = master ]; then
+              ci/publish.sh -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
+            else
+              ci/publish.sh -P -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
+            fi
   build:
     docker:
       - image: olanilsson/emacs-ci:24.3-25.3
@@ -71,3 +192,38 @@ jobs:
                     ci/publish.sh -P -v -c -u "Ola Nilsson" -e "ola.nilsson@gmail.com" buttercup-junit.el
                 fi
             fi
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - emacs_25_3
+      - emacs_25_2
+      - emacs_25_1
+      - emacs_24_5
+      - emacs_24_4
+      - emacs_24_3
+      - deploy:
+          requires:
+            - emacs_25_3
+            - emacs_25_2
+            - emacs_25_1
+            - emacs_24_5
+            - emacs_24_4
+            - emacs_24_3
+  weekly:
+    triggers:
+      - schedule:
+          # Run on Saturdays at 15:00 UTC
+          cron: "15 0 * * 6"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - emacs_25_3
+      - emacs_25_2
+      - emacs_25_1
+      - emacs_24_5
+      - emacs_24_4
+      - emacs_24_3
