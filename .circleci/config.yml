@@ -64,6 +64,20 @@ teststeps: &teststeps
 
 version: 2
 jobs:
+  emacs_master:
+    docker:
+      - image: olanilsson/emacs:master-alpine-ci
+    environment:
+      - EMACS: emacs
+      - CASK_EMACS: emacs
+    <<: *teststeps
+  emacs_26:
+    docker:
+      - image: olanilsson/emacs:26.1-alpine-ci
+    environment:
+      - EMACS: emacs
+      - CASK_EMACS: emacs
+    <<: *teststeps
   emacs_25_3:
     docker:
       - image: olanilsson/emacs-ci:25.3
@@ -197,6 +211,8 @@ workflows:
   version: 2
   build_and_test:
     jobs:
+      - emacs_master
+      - emacs_26
       - emacs_25_3
       - emacs_25_2
       - emacs_25_1
@@ -205,6 +221,8 @@ workflows:
       - emacs_24_3
       - deploy:
           requires:
+            - emacs_master
+            - emacs_26
             - emacs_25_3
             - emacs_25_2
             - emacs_25_1
@@ -221,6 +239,8 @@ workflows:
               only:
                 - master
     jobs:
+      - emacs_master
+      - emacs_26
       - emacs_25_3
       - emacs_25_2
       - emacs_25_1
