@@ -80,52 +80,52 @@ jobs:
     <<: *teststeps
   emacs_25_3:
     docker:
-      - image: olanilsson/emacs-ci:25.3
+      - image: olanilsson/emacs:25.3-alpine-ci
     environment:
-      - EMACS: /opt/emacs/25.3/bin/emacs
-      - CASK_EMACS: /opt/emacs/25.3/bin/emacs
+      - EMACS: emacs
+      - CASK_EMACS: emacs
     <<: *teststeps
   emacs_25_2:
     docker:
-      - image: olanilsson/emacs-ci:25.2
+      - image: olanilsson/emacs:25.2-alpine-ci
     environment:
-      - EMACS: /opt/emacs/25.2/bin/emacs
-      - CASK_EMACS: /opt/emacs/25.2/bin/emacs
+      - EMACS: emacs
+      - CASK_EMACS: emacs
     <<: *teststeps
   emacs_25_1:
     docker:
-      - image: olanilsson/emacs-ci:25.1
+      - image: olanilsson/emacs:25.1-ci
     environment:
-      - EMACS: /opt/emacs/25.1/bin/emacs
-      - CASK_EMACS: /opt/emacs/25.1/bin/emacs
+      - EMACS: emacs
+      - CASK_EMACS: emacs
     <<: *teststeps
   emacs_24_5:
     docker:
-      - image: olanilsson/emacs-ci:24.5
+      - image: olanilsson/emacs:24.5-ci
     environment:
-      - EMACS: /opt/emacs/24.5/bin/emacs
-      - CASK_EMACS: /opt/emacs/24.5/bin/emacs
+      - EMACS: emacs
+      - CASK_EMACS: emacs
     <<: *teststeps
   emacs_24_4:
     docker:
-      - image: olanilsson/emacs-ci:24.4
+      - image: olanilsson/emacs:24.4-ci
     environment:
-      - EMACS: /opt/emacs/24.4/bin/emacs
-      - CASK_EMACS: /opt/emacs/24.4/bin/emacs
+      - EMACS: emacs
+      - CASK_EMACS: emacs
     <<: *teststeps
   emacs_24_3:
     docker:
-      - image: olanilsson/emacs-ci:24.3
+      - image: olanilsson/emacs:24.3-ci
     environment:
-      - EMACS: /opt/emacs/24.3/bin/emacs
-      - CASK_EMACS: /opt/emacs/24.3/bin/emacs
+      - EMACS: emacs
+      - CASK_EMACS: emacs
     <<: *teststeps
   deploy:
     docker:
-      - image: olanilsson/emacs-ci:25.3
+      - image: olanilsson/emacs:26.1-alpine-ci
     environment:
-      - EMACS: /opt/emacs/25.3/bin/emacs
-      - CASK_EMACS: /opt/emacs/25.3/bin/emacs
+      - EMACS: emacs
+      - CASK_EMACS: emacs
     steps:
       - checkout
       - run:
