@@ -71,49 +71,49 @@ jobs:
       - EMACS: emacs
       - CASK_EMACS: emacs
     <<: *teststeps
-  emacs_26:
+  emacs_26.1:
     docker:
       - image: olanilsson/emacs:26.1-alpine-ci
     environment:
       - EMACS: emacs
       - CASK_EMACS: emacs
     <<: *teststeps
-  emacs_25_3:
+  emacs_25.3:
     docker:
       - image: olanilsson/emacs:25.3-alpine-ci
     environment:
       - EMACS: emacs
       - CASK_EMACS: emacs
     <<: *teststeps
-  emacs_25_2:
+  emacs_25.2:
     docker:
       - image: olanilsson/emacs:25.2-alpine-ci
     environment:
       - EMACS: emacs
       - CASK_EMACS: emacs
     <<: *teststeps
-  emacs_25_1:
+  emacs_25.1:
     docker:
       - image: olanilsson/emacs:25.1-ci
     environment:
       - EMACS: emacs
       - CASK_EMACS: emacs
     <<: *teststeps
-  emacs_24_5:
+  emacs_24.5:
     docker:
       - image: olanilsson/emacs:24.5-ci
     environment:
       - EMACS: emacs
       - CASK_EMACS: emacs
     <<: *teststeps
-  emacs_24_4:
+  emacs_24.4:
     docker:
       - image: olanilsson/emacs:24.4-ci
     environment:
       - EMACS: emacs
       - CASK_EMACS: emacs
     <<: *teststeps
-  emacs_24_3:
+  emacs_24.3:
     docker:
       - image: olanilsson/emacs:24.3-ci
     environment:
@@ -141,23 +141,23 @@ workflows:
   build_and_test:
     jobs:
       - emacs_master
-      - emacs_26
-      - emacs_25_3
-      - emacs_25_2
-      - emacs_25_1
-      - emacs_24_5
-      - emacs_24_4
-      - emacs_24_3
+      - emacs_26.1
+      - emacs_25.3
+      - emacs_25.2
+      - emacs_25.1
+      - emacs_24.5
+      - emacs_24.4
+      - emacs_24.3
       - deploy:
           requires:
             - emacs_master
-            - emacs_26
-            - emacs_25_3
-            - emacs_25_2
-            - emacs_25_1
-            - emacs_24_5
-            - emacs_24_4
-            - emacs_24_3
+            - emacs_26.1
+            - emacs_25.3
+            - emacs_25.2
+            - emacs_25.1
+            - emacs_24.5
+            - emacs_24.4
+            - emacs_24.3
   weekly:
     triggers:
       - schedule:
@@ -169,10 +169,10 @@ workflows:
                 - master
     jobs:
       - emacs_master
-      - emacs_26
-      - emacs_25_3
-      - emacs_25_2
-      - emacs_25_1
-      - emacs_24_5
-      - emacs_24_4
-      - emacs_24_3
+      - emacs_26.1
+      - emacs_25.3
+      - emacs_25.2
+      - emacs_25.1
+      - emacs_24.5
+      - emacs_24.4
+      - emacs_24.3
