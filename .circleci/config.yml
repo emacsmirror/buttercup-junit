@@ -1,6 +1,11 @@
 ---
 teststeps: &teststeps
   working_directory: ~/proj
+  environment:
+    - EMACS: emacs
+    - CASK_EMACS: emacs
+    - CASK: /root/.cask/bin/cask.sh
+    - CASKURL: https://raw.githubusercontent.com/snogge/cask/master/go.sh
   steps:
     - checkout
     - run: |
@@ -8,9 +13,6 @@ teststeps: &teststeps
         $EMACS --version > ~/proj/test_results/.emacsversion
     - run:
         name: Install cask
-        environment:
-          - CASKURL: https://raw.githubusercontent.com/snogge/cask/master/go.sh
-          - CASK: /root/.cask/bin/cask.sh
         command: |
           if [ -f $CASK ] ; then
             echo $CASK upgrade
@@ -23,8 +25,6 @@ teststeps: &teststeps
           rm -rf /root/.emacs.d/.cask/*/elpa/archives
     - run:
         name: Install Dependencies
-        environment:
-          - CASK: /root/.cask/bin/cask.sh
         command: |
           if [ -d $($CASK package-directory) ] ; then
             echo $CASK update
@@ -50,58 +50,34 @@ jobs:
   emacs_master:
     docker:
       - image: olanilsson/emacs:master-alpine-ci
-    environment:
-      - EMACS: emacs
-      - CASK_EMACS: emacs
     <<: *teststeps
   emacs_26.1:
     docker:
       - image: olanilsson/emacs:26.1-alpine-ci
-    environment:
-      - EMACS: emacs
-      - CASK_EMACS: emacs
     <<: *teststeps
   emacs_25.3:
     docker:
       - image: olanilsson/emacs:25.3-alpine-ci
-    environment:
-      - EMACS: emacs
-      - CASK_EMACS: emacs
     <<: *teststeps
   emacs_25.2:
     docker:
       - image: olanilsson/emacs:25.2-alpine-ci
-    environment:
-      - EMACS: emacs
-      - CASK_EMACS: emacs
     <<: *teststeps
   emacs_25.1:
     docker:
       - image: olanilsson/emacs:25.1-ci
-    environment:
-      - EMACS: emacs
-      - CASK_EMACS: emacs
     <<: *teststeps
   emacs_24.5:
     docker:
       - image: olanilsson/emacs:24.5-ci
-    environment:
-      - EMACS: emacs
-      - CASK_EMACS: emacs
     <<: *teststeps
   emacs_24.4:
     docker:
       - image: olanilsson/emacs:24.4-ci
-    environment:
-      - EMACS: emacs
-      - CASK_EMACS: emacs
     <<: *teststeps
   emacs_24.3:
     docker:
       - image: olanilsson/emacs:24.3-ci
-    environment:
-      - EMACS: emacs
-      - CASK_EMACS: emacs
     <<: *teststeps
   deploy:
     docker:
