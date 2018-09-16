@@ -3,11 +3,9 @@ teststeps: &teststeps
   working_directory: ~/proj
   steps:
     - checkout
-    - run: $EMACS --version > .emacsversion
-    - restore_cache:
-        keys:
-          - v1-repo-cask-{{ checksum ".emacsversion" }}-{{ .Branch }}-
-          - v1-repo-cask-{{ checksum ".emacsversion" }}-
+    - run: |
+        mkdir -p ~/proj/test_results
+        $EMACS --version > ~/proj/test_results/.emacsversion
     - run:
         name: Install cask
         environment:
@@ -23,16 +21,6 @@ teststeps: &teststeps
             curl -fsSL $CASKURL | /bin/sh
           fi
           rm -rf /root/.emacs.d/.cask/*/elpa/archives
-          ls -laR /root/.cask /root/.emacs.d/.cask > .cask.hash
-    - save_cache:
-        key: v1-repo-cask-{{ checksum ".emacsversion" }}-{{ .Branch }}-{{ checksum ".cask.hash" }}
-        paths:
-          - /root/.cask
-          - /root/.emacs.d/.cask
-    - restore_cache:
-        keys:
-          - v1-repo-deps-{{ checksum ".emacsversion" }}-{{ .Branch }}-
-          - v1-repo-deps-{{ checksum ".emacsversion" }}-
     - run:
         name: Install Dependencies
         environment:
@@ -46,11 +34,6 @@ teststeps: &teststeps
             $CASK install
           fi
           rm -rf ~/proj/.cask/*/elpa/archives
-          ls -laR ~/proj/.cask > .elpa.hash
-    - save_cache:
-        key: v1-repo-deps-{{ checksum ".emacsversion" }}-{{ .Branch }}-{{ checksum ".elpa.hash" }}
-        paths:
-          - ~/proj/.cask
     - run:
         name: test
         command: |
