@@ -1,6 +1,6 @@
 ;;; test-buttercup-junit.el --- Tests for buttercup-junit.el -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2016  Ola Nilsson
+;; Copyright (C) 2016-2018  Ola Nilsson
 
 ;; Author: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Keywords:
@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; 
+;; The tests for buttercup-junit, themselves written as buttercup tests.
 
 ;;; Code:
 
@@ -44,11 +44,11 @@
   (it "Calls buttercup-run-discover"
 	(buttercup-junit-run-discover)
 	(expect 'buttercup-run-discover :to-have-been-called))
-  
+
   (it "Calls buttercup-run-discover with redirected buttercup-reporter"
 	(spy-on 'buttercup-run-discover :and-call-fake (lambda () buttercup-reporter))
 	(expect (buttercup-junit-run-discover) :to-be #'buttercup-junit-reporter))
-  
+
   (it "Passes command line argument to buttercup-run-discover"
 	(let* ((command-line-args-left '("foo" "bar" "baz"))
 		   (before (cl-copy-list command-line-args-left)))
@@ -59,7 +59,7 @@
 	(setq command-line-args-left '("foo" "bar" "baz" "--xmlfile"))
 	(expect (buttercup-junit-run-discover) :to-throw 'error)
 	(expect 'buttercup-run-discover :not :to-have-been-called))
-  
+
   (describe "Removes --xmlfile FILE from command-line-args-left before calling buttercup-run-discover"
 	(let ((expected '("foo" "baz")))
 	  (it "Removes --xmlfile FILE from middle of command line"
@@ -144,7 +144,8 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 										 (expect 1 :to-equal 1))
 									   (it "1.2 should skip")
 									   (it "1.3 should fail"
-										 (expect 2 :to-equal 1))))
+										 (expect 2 :to-equal 1)))
+  "Single describe containing 1 passing, 1 pending and 1 failing spec.")
 
 (defvar test-buttercup-junit-suite2 '(describe "suite1"
 									   (it "1.1 should pass"
@@ -153,11 +154,13 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 										 (it "2.1 should pass"
 										   (expect t :to-be-truthy)))
 									   (it "1.2 should pass"
-										 (expect 2 :to-equal 2))))
+										 (expect 2 :to-equal 2)))
+  "Nested suites containing only passing specs.")
 
 (defvar test-buttercup-junit-suite3 '(describe "suite1"
 									   (it "should error"
-										 (string= 1 2))))
+										 (string= 1 2)))
+  "Suite with a single, failing spec.")
 
 (defvar test-buttercup-junit-suite4 '(describe "suite4"
 									   (it "4.1 should pass"
@@ -166,9 +169,12 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 									   (it "4.3 should fail"
 										 (expect 2 :to-equal 1))
 									   (it "4.4 should error"
-										 (expect (string= 1 2) :to-be-truthy))))
+										 (expect (string= 1 2) :to-be-truthy)))
+  "Suite with 1 passing, 1 pending, 1 failing, and 1 erroring spec.")
 
-(defvar test-buttercup-junit-timestamp-re "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [012][0-9]:[0-5][0-9]:[0-5][0-9]\\+[012][0-9][0-5][0-9]")
+(defvar test-buttercup-junit-timestamp-re
+  "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [012][0-9]:[0-5][0-9]:[0-5][0-9]\\+[012][0-9][0-5][0-9]"
+  "Regex that matches JUnit timestamps; YYY-MM-DD hh:mm::ss+hhmm.")
 
 (describe "buttercup-junit--escape-string"
   (it "should handle unprintable characters"
@@ -180,13 +186,27 @@ let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
 								(fail 0) (err 0) (skip 0) (tests (+ fail skip err))
 								(stamp test-buttercup-junit-timestamp-re)
 								(host ".+") (time "[0-9]+\\.[0-9]+"))
-  "Return an esxml attribute alist for testsuite tags."
+  "Return an esxml attribute alist for testsuite tags.
+NAME is the suite descriptions.
+FAIL is the number of failed testcases, default 0.
+ERR is the number of testcases that threw an error, default 0.
+SKIP is the number of skipped (pending) testcases, default 0.
+TESTS is the total number of testcases, defaults to FAIL + ERR + SKIP.
+STAMP should be a JUnit timestamp string, default `test-buttercup-junit-timestamp-re'.
+HOST is a hostname, default `.+'.
+TIME is the elapsed time in seconds, default `[0-9]+\\.[0-9]+'."
   `((name . ,name) (timestamp . ,stamp) (hostname . ,host)
 	(tests . ,(number-to-string tests)) (failures . ,(number-to-string fail))
 	(errors . ,(number-to-string err)) (time . ,time) (skipped . ,(number-to-string skip))))
 
 (cl-defun testcase (name &rest contains &key (class "buttercup") (time "[0-9]+\\.[0-9]+")
 						 skip &allow-other-keys)
+  "Return an esxml list for a testcase tag.
+NAME is the spec description.
+CONTAINS is any inner data for the tag.
+CLASS is the value if the `class' attribute, default `buttercup'.
+TIME is the elapsed time, default `[0-9]+\\.[0-9]+'.
+If SKIP is non-nil, include the `skip' attribute."
   (let ((attrs `((name . ,name) (classname . ,class) (time . ,time))))
 	(cond (skip `(testcase ,attrs (skipped nil)))
 		  (contains `(testcase ,attrs ,@contains))
