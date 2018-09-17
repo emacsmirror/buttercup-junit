@@ -149,6 +149,40 @@ SUITE' in `commandline-args-left'."
   (with-buttercup-junit-reporter
     (buttercup-run-discover)))
 
+;;;###autoload
+(defun buttercup-junit-run-markdown-buffer (&rest markdown-buffers)
+  "Execute `buttercup-run-markdown-buffer' with `buttercup-junit-reporter'.
+MARKDOWN-BUFFERS is passed to `buttercup-run-markdown-buffer'.
+The JUnit report will be written to the file specified by
+`buttercup-junit-result-file', and to stdout if
+`buttercup-junit-to-stdout' is non-nil.  If
+`buttercup-junit-master-suite' is set a wrapper testsuite of that
+name will be added.  These variables can be overriden by the
+options `--xmlfile XMLFILE', `--junit-stdout', and `--outer-suite
+SUITE' in `commandline-args-left'."
+  (interactive)
+  (with-buttercup-junit-reporter
+    (apply buttercup-run-markdown-buffer markdown-buffers)))
+
+;;;###autoload
+(defun buttercup-junit-run-markdown ()
+  "Execute `buttercyp-run-markdown' with `buttercup-junit-reporter'."
+  (with-buttercup-junit-reporter
+    (buttercup-run-markdown)))
+
+;;;###autoload
+(defun buttercup-junit-run-markdown-file (file)
+  "Pass FILE to `buttercup-run-markdown-file' using `buttercup-junit-reporter'."
+  (interactive "fMarkdown file: ")
+  (with-buttercup-junit-reporter
+    (buttercup-run-markdown-file file)))
+
+;;;###autoload
+(defun buttercup-junit-run ()
+  "Execute `buttercup-run' with `buttercup-junit-reporter'."
+  (interactive)
+  (with-buttercup-junit-reporter
+    (buttercup-run)))
 
 (defsubst buttercup-junit--insert-at (marker &rest insert-args)
   "Go to MARKER, disable MARKER, and `insert' INSERT-ARGS."
