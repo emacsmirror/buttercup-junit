@@ -1,6 +1,6 @@
 ;;; buttercup-junit.el --- JUnit reporting for Buttercup -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2016-2017  Ola Nilsson
+;; Copyright (C) 2016-2018  Ola Nilsson
 
 ;; Author: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
@@ -104,24 +104,22 @@ as the last item in `command-line-args-left'."
   (prog1 (member option command-line-args-left)
 	(setq command-line-args-left (remove option command-line-args-left))))
 
-;;;###autoload
-(defun buttercup-junit-run-discover ()
-  "Execute `buttercup-run-discover' with `buttercup-junit-reporter' set.
-The JUnit report will be written to the file specified by
-`buttercup-junit-result-file', and to stdout if
-`buttercup-junit-to-stdout' is non-nil.  If
-`buttercup-junit-master-suite' is set a wrapper testsuite of that
-name will be added.  These variables can be overriden by the
-options `--xmlfile XMLFILE', `--junit-stdout', and `--outer-suite
-SUITE' in `commandline-args-left'"
-  (let ((buttercup-junit-result-file (or (buttercup-junit--extract-argument-option "--xmlfile")
-										 buttercup-junit-result-file))
-		(buttercup-junit--to-stdout (or (buttercup-junit--option-set "--junit-stdout")
-										buttercup-junit--to-stdout))
-		(buttercup-junit-master-suite (or (buttercup-junit--extract-argument-option "--outer-suite")
-										  buttercup-junit-master-suite))
-		(buttercup-reporter #'buttercup-junit-reporter))
-	(buttercup-run-discover)))
+(defmacro with-buttercup-junit-reporter (&rest body)
+  "Execute BODY with necessary variables bound.
+This macro is used to wrap calls to buttercup with relevant
+variables set."
+  (declare (debug t) (indent defun))
+  `(let ((buttercup-junit-result-file
+          (or (buttercup-junit--extract-argument-option "--xmlfile")
+              buttercup-junit-result-file))
+         (buttercup-junit--to-stdout
+          (or (buttercup-junit--option-set "--junit-stdout")
+              buttercup-junit--to-stdout))
+         (buttercup-junit-master-suite
+          (or (buttercup-junit--extract-argument-option "--outer-suite")
+              buttercup-junit-master-suite))
+         (buttercup-reporter #'buttercup-junit-reporter))
+     ,@body))
 
 ;;;###autoload
 (defun buttercup-junit-at-point (&optional outer)
@@ -135,13 +133,22 @@ testsuite of that name will be added."
 	(when outer
 	  (setq command-line-args-left (append command-line-args-left
 										   (list "--outer-suite" outer))))
-	(let ((buttercup-junit-result-file (or (buttercup-junit--extract-argument-option "--xmlfile")
-										   buttercup-junit-result-file))
-		  (buttercup-junit--to-stdout (buttercup-junit--option-set "--junit-stdout"))
-		  (buttercup-junit-master-suite (or (buttercup-junit--extract-argument-option "--outer-suite")
-											buttercup-junit-master-suite))
-		  (buttercup-reporter #'buttercup-junit-reporter))
-	   (buttercup-run-at-point))))
+    (with-buttercup-junit-reporter
+      (buttercup-run-at-point))))
+
+;;;###autoload
+(defun buttercup-junit-run-discover ()
+  "Execute `buttercup-run-discover' with `buttercup-junit-reporter' set.
+The JUnit report will be written to the file specified by
+`buttercup-junit-result-file', and to stdout if
+`buttercup-junit-to-stdout' is non-nil.  If
+`buttercup-junit-master-suite' is set a wrapper testsuite of that
+name will be added.  These variables can be overriden by the
+options `--xmlfile XMLFILE', `--junit-stdout', and `--outer-suite
+SUITE' in `commandline-args-left'."
+  (with-buttercup-junit-reporter
+    (buttercup-run-discover)))
+
 
 (defsubst buttercup-junit--insert-at (marker &rest insert-args)
   "Go to MARKER, disable MARKER, and `insert' INSERT-ARGS."
