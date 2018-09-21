@@ -29,10 +29,12 @@
 ;;
 ;; `emacs -batch -L . -f package-initialize -f buttercup-junit-run-discover [buttercup-options]'
 ;;
-;; buttercup-junit-run-discover can be configured with the following command line options:
+;; buttercup-junit-run-discover can be configured with the following
+;; command line options:
 ;;
 ;;  --xmlfile FILE    Write JUnit report to FILE
-;;  --junit-stdout    Write JUnit report to stdout.  The report file will also be written.
+;;  --junit-stdout    Write JUnit report to stdout.
+;;                    The report file will also be written.
 ;;  --outer-suite     Add a wrapping testsuite around the outer suites.
 ;;
 ;; buttercup tests are grouped into descriptions, and descriptions can
@@ -279,7 +281,8 @@ and ARG.  A new output buffer is created on the
 	 (setq buttercup-junit--buffer (generate-new-buffer (generate-new-buffer-name "*junit*"))))
   (with-current-buffer buttercup-junit--buffer
 	(pcase event
-	  ;;buttercup-started -- The test run is starting. The argument is a list of suites this run will execute.
+      ;; buttercup-started -- The test run is starting. The argument is
+      ;; a list of suites this run will execute.
 	  (`buttercup-started
 	   (set-buffer-file-coding-system 'utf-8)
 	   (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
