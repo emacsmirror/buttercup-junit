@@ -31,7 +31,7 @@ build: cask-install
 package: cask-install
 	$(CASK) package
 
-test: cask-install
+test check: cask-install
 	$(CASK) emacs $(TESTOPTS) -f buttercup-run-discover tests
 
 report: $(JUNIT)
@@ -47,4 +47,4 @@ clean:
 	$(CASK) clean-elc
 	rm -rf .cask dist $(JUNIT)
 
-.PHONY: clean report test package build cask-install
+.PHONY: build cask-install check clean package report test
