@@ -268,24 +268,29 @@ If SKIP is non-nil, include the `skip' attribute."
 						 ,(testcase "should handle &><\""))))))
 
 (describe "The timestamps"
-  (let* (first-time spytime)
-    (before-each
-      (setq first-time (current-time)
-            spytime first-time)
-      (spy-on 'current-time
-              :and-call-fake
-              (lambda ()
-                (prog1 spytime
-                  (setq spytime (time-add spytime (seconds-to-time 1.5)))))))
-    (it "should report correct elapsed time for specs"
-      (let ((res (esxml-buttercup-junit-suite '(describe "suite"
-                                                 (it "spec"
-                                                   (expect (+ 1 1) :to-equal 2))))))
-        (expect res :to-esxml-match
+  (it "should report correct elapsed time for specs"
+    (let (start-time suite spec)
+      (setq start-time (current-time)
+            suite (make-buttercup-suite
+                   :description "suite"
+                   :time-started start-time
+                   :time-ended (time-add start-time (seconds-to-time 1)))
+            spec (make-buttercup-spec
+                  :description "spec"
+                  :time-started (time-add start-time (seconds-to-time 0.25))
+                  :time-ended (time-add start-time (seconds-to-time 0.5))))
+      (buttercup-suite-add-child suite spec)
+      (buttercup-junit--with-local-vars
+        (buttercup-junit-reporter 'buttercup-started nil)
+        (buttercup-junit-reporter 'spec-started spec)
+        (buttercup-junit-reporter 'spec-done spec)
+        (buttercup-junit-reporter 'buttercup-done (list suite))
+        (expect (with-current-buffer buttercup-junit--buffer
+                  (xml-to-esxml (buffer-string)))
+                :to-esxml-match
                 `(testsuites
                   nil
-                  (testsuite ,(testsuite-attrs "suite" :tests 1)
-                             ,(testcase "spec" :time "1.5"))))))))
+                  ,(testcase "spec" :time "0.250000")))))))
 
 (describe "Return value"
   (before-each (spy-on 'buttercup-junit--exit-code))
