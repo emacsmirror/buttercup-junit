@@ -306,53 +306,73 @@ If SKIP is non-nil, include the `skip' attribute."
                  (testcase "should handle &><\""))))))
 
 (describe "The timestamps"
-  (describe "should report correct start time"
-    (let* ((spytime (current-time)))
+  (let (start-time suite spec suite2)
+    (cl-labels ((report-suites (&rest suites)
+                               (buttercup-junit-reporter 'buttercup-started suites)
+                               (dolist (suite suites)
+                                 (buttercup-junit-reporter 'suite-started suite)
+                                 (buttercup-junit-reporter 'suite-done suite))
+                               (buttercup-junit-reporter 'buttercup-done suites))
+                (start+ (seconds) (time-add start-time (seconds-to-time seconds))))
       (before-each
-        (spy-on 'current-time
-                :and-call-fake
-                (lambda () spytime)))
-      (it "for suites"
-        (let ((res (esxml-buttercup-junit-suite '(describe "suite"))))
-          (expect res :to-esxml-match
-                  `(testsuites
-                    nil
-                    ,(testsuite "suite" :tests 0 :stamp spytime)))))
-      (it "for any outer suite"
-        (let ((buttercup-junit-master-suite "master") res)
-          (setq res (esxml-buttercup-junit-suite "master" '(describe "suite")))
-          (expect res :to-esxml-match
-                  `(testsuites
-                    nil
-                    ,(testsuite "master" :stamp spytime
-                       (testsuite "suite" :stamp spytime))))))))
-
-  (describe "should report correct elapsed time"
-    (let* (first-time spytime)
-      (before-each
-        (setq first-time (current-time)
-              spytime first-time)
-        (spy-on 'current-time
-                :and-call-fake
-                (lambda ()
-                  (prog1 spytime
-                    (setq spytime (time-add spytime (seconds-to-time 1.5)))))))
-      (it "for suites"
-        (let ((res (esxml-buttercup-junit-suite '(describe "suite"))))
-          (expect res :to-esxml-match
-                  `(testsuites
-                    nil
-                    ,(testsuite "suite" :time "1.500000")))))
-      (it "for any outer suite"
-        (let ((res (esxml-buttercup-junit-suite "master"
-                                                '(describe "first")
-                                                '(describe "second"))))
-          (expect res :to-esxml-match
-                  `(testsuites
-                    nil
-                    ,(testsuite "master" :time "3.000000"
-                       (testsuite "first" :time "1.500000")
-                       (testsuite "second" :time "1.500000"))))))))
+        (setq start-time (current-time)
+              suite (make-buttercup-suite
+                     :description "suite"
+                     :time-started start-time
+                     :time-ended (start+ 1))
+              suite2 (make-buttercup-suite
+                      :description "suite2"
+                      :time-started (start+ 1.5)
+                      :time-ended (start+ 2))
+              spec (make-buttercup-spec
+                    :description "spec"
+                    :time-started (start+ 0.25)
+                    :time-ended   (start+ 0.5)))
+        (buttercup-suite-add-child suite spec))
+      (describe "should hold correct start time"
+        (it "for suites"
+          (buttercup-junit--with-local-vars
+            (report-suites suite)
+            (expect (with-current-buffer buttercup-junit--buffer
+                      (xml-to-esxml (buffer-string)))
+                    :to-esxml-match
+                    `(testsuites
+                      nil
+                      ,(testsuite "suite" :tests 1 :stamp start-time)))))
+        (it "for any outer suite"
+          (buttercup-junit--with-local-vars
+            (setq buttercup-junit-master-suite "master")
+            (report-suites suite suite2)
+            (expect (with-current-buffer buttercup-junit--buffer
+                      (xml-to-esxml (buffer-string)))
+                    :to-esxml-match
+                    `(testsuites
+                      nil
+                      ,(testsuite "master" :tests 1 :stamp start-time
+                         (testsuite "suite" :tests 1 :stamp start-time)
+                         (testsuite "suite2" :stamp (start+ 1.5))))))))
+      (describe "should report correct elapsed time"
+        (it "for suites"
+          (buttercup-junit--with-local-vars
+            (report-suites suite)
+            (expect (with-current-buffer buttercup-junit--buffer
+                      (xml-to-esxml (buffer-string)))
+                    :to-esxml-match
+                    `(testsuites
+                      nil
+                      ,(testsuite  "suite" :tests 1 :time "1.000000")))))
+        (it "for any outer suite"
+          (buttercup-junit--with-local-vars
+            (setq buttercup-junit-master-suite "master")
+            (report-suites suite suite2)
+            (expect (with-current-buffer buttercup-junit--buffer
+                      (xml-to-esxml (buffer-string)))
+                    :to-esxml-match
+                    `(testsuites
+                      nil
+                      ,(testsuite "master" :tests 1 :time "1.500000"
+                         (testsuite "suite" :tests 1 :time "1.000000")
+                         (testsuite "suite2" :time "0.500000")))))))
   (it "should report correct elapsed time for specs"
     (let (start-time suite spec)
       (setq start-time (current-time)
@@ -375,7 +395,7 @@ If SKIP is non-nil, include the `skip' attribute."
                 :to-esxml-match
                 `(testsuites
                   nil
-                  ,(testcase "spec" :time "0.250000")))))))
+                  ,(testcase "spec" :time "0.250000")))))))))
 
 (describe "Return value"
   (before-each (spy-on 'buttercup-junit--exit-code))
