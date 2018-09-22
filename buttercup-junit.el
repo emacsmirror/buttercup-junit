@@ -296,25 +296,16 @@ and ARG.  A new output buffer is created on the
 	   (buttercup-junit--open-testsuite arg))
 	  ;; spec-started -- A spec is starting. The argument is the spec.
 	  ;;   See `make-buttercup-spec' for details on this structure.
-	  (`spec-started
+      (`spec-started) ; ignored
+      ;; spec-done -- A spec has finished executing. The argument is the spec.
+	  (`spec-done
 	   (insert (make-string buttercup-junit--indent-level ?\s)
 			   "<testcase name=\""
 			   (buttercup-junit--escape-string (buttercup-spec-description arg)) ;name
-			   "\" classname=\"buttercup\" time=\"")
-	   (push (list arg (point-marker))
-             buttercup-junit--state-stack)
-	   (insert "\">")
-	   (cl-incf buttercup-junit--indent-level))
-	  ;; spec-done -- A spec has finished executing. The argument is the
-	  ;;   spec.
-	  (`spec-done
-	   (cl-destructuring-bind (orig time-mark) (pop buttercup-junit--state-stack)
-		 (unless (eq arg orig)
-           (error "Corrupted stack buttercup-junit--state-stack"))
-		 (save-excursion
-		   (buttercup-junit--insert-at
-            time-mark
-			(format "%f" (float-time (buttercup-elapsed-time arg))))))
+			   "\" classname=\"buttercup\" time=\""
+               (format "%f" (float-time (buttercup-elapsed-time arg)))
+               "\">")
+	   (cl-incf buttercup-junit--indent-level)
 	   (pcase (buttercup-spec-status arg)
 		 (`failed
 		  (let ((desc (buttercup-spec-failure-description arg))
