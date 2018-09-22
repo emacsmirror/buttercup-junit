@@ -267,6 +267,26 @@ If SKIP is non-nil, include the `skip' attribute."
 			  (testsuite ,(testsuite-attrs "suite with &><\"" :tests 1)
 						 ,(testcase "should handle &><\""))))))
 
+(describe "The timestamps"
+  (let* (first-time spytime)
+    (before-each
+      (setq first-time (current-time)
+            spytime first-time)
+      (spy-on 'current-time
+              :and-call-fake
+              (lambda ()
+                (prog1 spytime
+                  (setq spytime (time-add spytime (seconds-to-time 1.5)))))))
+    (it "should report correct elapsed time for specs"
+      (let ((res (esxml-buttercup-junit-suite '(describe "suite"
+                                                 (it "spec"
+                                                   (expect (+ 1 1) :to-equal 2))))))
+        (expect res :to-esxml-match
+                `(testsuites
+                  nil
+                  (testsuite ,(testsuite-attrs "suite" :tests 1)
+                             ,(testcase "spec" :time "1.5"))))))))
+
 (describe "Return value"
   (before-each (spy-on 'buttercup-junit--exit-code))
   (after-each (spy-calls-reset 'buttercup-junit--exit-code))
@@ -285,3 +305,7 @@ If SKIP is non-nil, include the `skip' attribute."
 
 (provide 'test-buttercup-junit)
 ;;; test-buttercup-junit.el ends here
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
