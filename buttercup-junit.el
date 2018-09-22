@@ -301,19 +301,20 @@ and ARG.  A new output buffer is created on the
 			   "<testcase name=\""
 			   (buttercup-junit--escape-string (buttercup-spec-description arg)) ;name
 			   "\" classname=\"buttercup\" time=\"")
-	   (push (list arg (point-marker) (current-time)) buttercup-junit--state-stack)
+	   (push (list arg (point-marker))
+             buttercup-junit--state-stack)
 	   (insert "\">")
 	   (cl-incf buttercup-junit--indent-level))
 	  ;; spec-done -- A spec has finished executing. The argument is the
 	  ;;   spec.
 	  (`spec-done
-	   (cl-destructuring-bind (orig time start-time) (pop buttercup-junit--state-stack)
-		 (unless (eq arg orig) (error "Corrupted stack buttercup-junit--state-stack"))
+	   (cl-destructuring-bind (orig time-mark) (pop buttercup-junit--state-stack)
+		 (unless (eq arg orig)
+           (error "Corrupted stack buttercup-junit--state-stack"))
 		 (save-excursion
-		   (buttercup-junit--insert-at time
-									   (format "%f"
-											   (float-time (time-subtract (current-time)
-																		  start-time))))))
+		   (buttercup-junit--insert-at
+            time-mark
+			(format "%f" (float-time (buttercup-elapsed-time arg))))))
 	   (pcase (buttercup-spec-status arg)
 		 (`failed
 		  (let ((desc (buttercup-spec-failure-description arg))
