@@ -269,6 +269,48 @@ that will run."
   (insert (make-string buttercup-junit--indent-level ?\s)
 		  "</testsuite>\n"))
 
+(defun buttercup-junit--testcase (spec)
+  "Print a `testcase' xml element for SPEC to the current buffer."
+  (insert (make-string buttercup-junit--indent-level ?\s)
+          "<testcase name=\""
+          (buttercup-junit--escape-string (buttercup-spec-description spec))
+          "\" classname=\"buttercup\" time=\""
+          (format "%f" (float-time (buttercup-elapsed-time spec)))
+          "\">")
+  (cl-incf buttercup-junit--indent-level)
+  (pcase (buttercup-spec-status spec)
+    (`failed
+     (let ((desc (buttercup-spec-failure-description spec))
+           (stack (buttercup-spec-failure-stack spec))
+           tag message type)
+       (cond ((stringp desc) (setq tag "failed"
+                                   message desc
+                                   ;; TODO: find a proper value for type
+                                   type "type"))
+             ((eq (car desc) 'error)
+              (setq tag "error"
+                    message (pp-to-string (cadr desc))
+                    type (symbol-name (car desc)))
+              (setf (buttercup-spec-status spec) 'error))
+             (t (setq tag "failed"
+                      message (pp-to-string desc)
+                      type "unknown")))
+       (insert "\n" (make-string buttercup-junit--indent-level ?\s)
+               "<" tag " message=\""
+               (buttercup-junit--escape-string message) "\""
+               " type=\"" (buttercup-junit--escape-string type) "\">"
+               "Traceback (most recent call last):\n")
+       (dolist (frame stack)
+         (insert (buttercup-junit--escape-string (format "  %S" (cdr frame)))
+                 "\n"))
+       (insert "</" tag ">\n")))
+    (`pending
+     (insert "\n" (make-string buttercup-junit--indent-level ?\s)
+             "<skipped/>\n")))
+  (cl-decf buttercup-junit--indent-level)
+  (insert (if (bolp) (make-string buttercup-junit--indent-level ?\s) "")
+          "</testcase>\n"))
+
 ;;;###autoload
 (defun buttercup-junit-reporter (event arg)
   "Insert JUnit tags into the `*junit*' buffer according to EVENT and ARG.
@@ -298,43 +340,7 @@ and ARG.  A new output buffer is created on the
 	  ;;   See `make-buttercup-spec' for details on this structure.
       (`spec-started) ; ignored
       ;; spec-done -- A spec has finished executing. The argument is the spec.
-	  (`spec-done
-	   (insert (make-string buttercup-junit--indent-level ?\s)
-			   "<testcase name=\""
-			   (buttercup-junit--escape-string (buttercup-spec-description arg)) ;name
-			   "\" classname=\"buttercup\" time=\""
-               (format "%f" (float-time (buttercup-elapsed-time arg)))
-               "\">")
-	   (cl-incf buttercup-junit--indent-level)
-	   (pcase (buttercup-spec-status arg)
-		 (`failed
-		  (let ((desc (buttercup-spec-failure-description arg))
-				(stack (buttercup-spec-failure-stack arg))
-				tag message type)
-			(cond ((stringp desc) (setq tag "failed"
-										message desc
-										type "type")) ; TODO: find a proper value for type
-				  ((eq (car desc) 'error)
-				   (setq tag "error"
-						 message (pp-to-string (cadr desc))
-						 type (symbol-name (car desc)))
-				   (setf (buttercup-spec-status arg) 'error))
-				  (t (setq tag "failed"
-						   message (pp-to-string desc)
-						   type "unknown")))
-			(insert "\n" (make-string buttercup-junit--indent-level ?\s)
-					"<" tag " message=\"" (buttercup-junit--escape-string message) "\""
-					" type=\"" (buttercup-junit--escape-string type) "\">"
-					"Traceback (most recent call last):\n")
-			(dolist (frame stack)
-			  (insert (buttercup-junit--escape-string (format "  %S" (cdr frame)))
-					  "\n"))
-			(insert "</" tag ">\n")))
-		 (`pending
-		  (insert "\n" (make-string buttercup-junit--indent-level ?\s)
-				  "<skipped/>\n")))
-	   (cl-decf buttercup-junit--indent-level)
-	   (insert (if (bolp) (make-string buttercup-junit--indent-level ?\s) "") "</testcase>\n"))
+      (`spec-done (buttercup-junit--testcase arg))
 	  ;; suite-done -- A suite has finished. The argument is the spec.
 	  (`suite-done
 	   (buttercup-junit--close-testsuite arg))
