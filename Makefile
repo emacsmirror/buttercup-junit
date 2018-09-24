@@ -22,6 +22,8 @@ TESTOPTS = -L . -L tests -batch -l buttercup-junit -f package-initialize
 
 JUNIT ?= buttercup-junit.xml
 
+BUTTERCUP_FLAGS += $(if $(BUTTERCUP_NO_COLOR),--no-color)
+
 cask-install:
 	$(CASK) install
 
@@ -32,7 +34,7 @@ package: cask-install
 	$(CASK) package
 
 test check: cask-install
-	$(CASK) emacs $(TESTOPTS) -f buttercup-run-discover tests
+	$(CASK) emacs $(TESTOPTS) -f buttercup-run-discover $(BUTTERCUP_FLAGS) tests
 
 report: $(JUNIT)
 
