@@ -268,6 +268,23 @@ If SKIP is non-nil, include the `skip' attribute."
 						 ,(testcase "should handle &><\""))))))
 
 (describe "The timestamps"
+  (it "should report correct elapsed time for suites"
+    (let* (first-time spytime)
+      (setq first-time (current-time)
+            spytime first-time)
+      (spy-on 'current-time
+              :and-call-fake
+              (lambda ()
+                (prog1 spytime
+                  (setq spytime (time-add spytime (seconds-to-time 1.5))))))
+      (let ((res (esxml-buttercup-junit-suite '(describe "suite"))))
+        (expect res :to-esxml-match
+                `(testsuites
+                  nil
+                  (testsuite ,(testsuite-attrs
+                               "suite"
+                               :tests 0
+                               :time "3.000000")))))))
   (it "should report correct elapsed time for specs"
     (let (start-time suite spec)
       (setq start-time (current-time)
