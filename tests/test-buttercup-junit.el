@@ -133,7 +133,9 @@ will be set to that string value."
 
 (defun esxml-buttercup-junit-suite (&rest suites)
   "Run buttercup-junit on SUITES, and convert the JUnit XML to esxml.
-let-bind `buttercup-junit-master-suite' to OUTER while running SUITES."
+SUITES should be a list of buttercup `description' forms.  One of
+them may also be a string, if so `buttercup-junit-master-suite'
+will be set to that string value."
   (buttercup-junit--with-local-vars
 	(test-buttercup-run suites)
 	(with-current-buffer buttercup-junit--buffer
