@@ -276,19 +276,31 @@ If SKIP is non-nil, include the `skip' attribute."
 						 ,(testcase "should handle &><\""))))))
 
 (describe "The timestamps"
-  (it "should report correct start time for suites"
+  (describe "should report correct start time"
     (let* ((spytime (current-time)))
-      (spy-on 'current-time
-              :and-call-fake
-              (lambda () spytime))
-      (let ((res (esxml-buttercup-junit-suite '(describe "suite"))))
-        (expect res :to-esxml-match
-                `(testsuites
-                  nil
-                  (testsuite ,(testsuite-attrs
-                               "suite"
-                               :tests 0
-                               :stamp spytime)))))))
+      (before-each
+        (spy-on 'current-time
+                :and-call-fake
+                (lambda () spytime)))
+      (it "for suites"
+        (let ((res (esxml-buttercup-junit-suite '(describe "suite"))))
+          (expect res :to-esxml-match
+                  `(testsuites
+                    nil
+                    (testsuite ,(testsuite-attrs
+                                 "suite"
+                                 :tests 0
+                                 :stamp spytime))))))
+      (it "for any outer suite"
+        (let ((buttercup-junit-master-suite "master") res)
+          (setq res (esxml-buttercup-junit-suite "master" '(describe "suite")))
+          (expect res :to-esxml-match
+                  `(testsuites
+                    nil
+                    (testsuite
+                     ,(testsuite-attrs "master" :stamp spytime)
+                     (testsuite ,(testsuite-attrs "suite"
+                                                  :stamp spytime)))))))))
   (it "should report correct elapsed time for suites"
     (let* (first-time spytime)
       (setq first-time (current-time)
