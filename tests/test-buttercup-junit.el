@@ -281,51 +281,52 @@ If SKIP is non-nil, include the `skip' attribute."
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite1) :to-esxml-match
 			`(testsuites
 			  nil
-			  (testsuite ,(testsuite-attrs "suite1" :tests 3 :fail 1 :skip 1)
-				,(testcase "1.1 should pass")
-				,(testcase "1.2 should skip" :skip t)
-				,(testcase "1.3 should fail"
-						   '(failed ((message . "Expected `2' to be `equal' to `1'.*") (type . "type"))
-									"Traceback .*"))))))
+              ,(testsuite "suite1" :tests 3 :fail 1 :skip 1
+                 (testcase "1.1 should pass")
+                 (testcase "1.2 should skip" :skip t)
+                 (testcase "1.3 should fail"
+                   '(failed ((message . "Expected `2' to be `equal' to `1'.*")
+                             (type . "type"))
+                            "Traceback .*"))))))
   (it "should handle nested describes"
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite2) :to-esxml-match
 			`(testsuites
 			  nil
-			  (testsuite ,(testsuite-attrs "suite1" :tests 3)
-				,(testcase "1.1 should pass")
-				(testsuite ,(testsuite-attrs "suite2" :tests 1)
-  						   ,(testcase "2.1 should pass"))
-				,(testcase "1.2 should pass")))))
+              ,(testsuite "suite1" :tests 3
+                 (testcase "1.1 should pass")
+                 (testsuite "suite2" :tests 1
+                   (testcase "2.1 should pass"))
+                 (testcase "1.2 should pass")))))
   (it "should handle erroring testcases"
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite3) :to-esxml-match
 			`(testsuites
 			  nil
-			  (testsuite ,(testsuite-attrs "suite1" :err 1)
-			   ,(testcase "should error"
-						  '(error ((message . "(wrong-type-argument stringp 1)")
-								   (type . "error")) "Traceback.*"))))))
+              ,(testsuite "suite1" :err 1
+                 (testcase "should error"
+                   '(error ((message . "(wrong-type-argument stringp 1)")
+                            (type . "error")) "Traceback.*"))))))
   (it "should report correct test state numbers when using outer-suite"
 	;; neither the error numbering nor the outer suite works yet
 	(expect (esxml-buttercup-junit-suite  "outer" test-buttercup-junit-suite4) :to-esxml-match
 			`(testsuites
 			  nil
-			  (testsuite ,(testsuite-attrs "outer" :tests 4 :fail 1 :skip 1 :err 1)
-				(testsuite ,(testsuite-attrs "suite4" :tests 4 :fail 1 :skip 1 :err 1)
-			      ,(testcase "4.1 should pass")
-			      ,(testcase "4.2 should skip" :skip t)
-			      ,(testcase "4.3 should fail"
-							 '(failed ((message . "Expected `2' to be `equal' to `1'.*")
-									   (type . "type")) "Traceback .*"))
-				  ,(testcase "4.4 should error"
-							 '(error ((message . "(wrong-type-argument stringp 1)")
-									  (type . "error")) "Traceback.*")))))))
+              ,(testsuite "outer" :tests 4 :fail 1 :skip 1 :err 1
+                 (testsuite "suite4" :tests 4 :fail 1 :skip 1 :err 1
+                   (testcase "4.1 should pass")
+                   (testcase "4.2 should skip" :skip t)
+                   (testcase "4.3 should fail"
+                     '(failed ((message . "Expected `2' to be `equal' to `1'.*")
+                               (type . "type")) "Traceback .*"))
+                   (testcase "4.4 should error"
+                     '(error ((message . "(wrong-type-argument stringp 1)")
+                              (type . "error")) "Traceback.*")))))))
   (it "should handle special XML chars in attributes"
 	(expect (esxml-buttercup-junit-suite '(describe "suite with &><\"" (it "should handle &><\"" (expect 1 :to-equal 1))))
 			:to-esxml-match
 			`(testsuites
 			  nil
-			  (testsuite ,(testsuite-attrs "suite with &><\"" :tests 1)
-						 ,(testcase "should handle &><\""))))))
+              ,(testsuite "suite with &><\"" :tests 1
+                 (testcase "should handle &><\""))))))
 
 (describe "The timestamps"
   (describe "should report correct start time"
@@ -339,20 +340,15 @@ If SKIP is non-nil, include the `skip' attribute."
           (expect res :to-esxml-match
                   `(testsuites
                     nil
-                    (testsuite ,(testsuite-attrs
-                                 "suite"
-                                 :tests 0
-                                 :stamp spytime))))))
+                    ,(testsuite "suite" :tests 0 :stamp spytime)))))
       (it "for any outer suite"
         (let ((buttercup-junit-master-suite "master") res)
           (setq res (esxml-buttercup-junit-suite "master" '(describe "suite")))
           (expect res :to-esxml-match
                   `(testsuites
                     nil
-                    (testsuite
-                     ,(testsuite-attrs "master" :stamp spytime)
-                     (testsuite ,(testsuite-attrs "suite"
-                                                  :stamp spytime)))))))))
+                    ,(testsuite "master" :stamp spytime
+                       (testsuite "suite" :stamp spytime))))))))
 
   (describe "should report correct elapsed time"
     (let* (first-time spytime)
@@ -369,9 +365,7 @@ If SKIP is non-nil, include the `skip' attribute."
           (expect res :to-esxml-match
                   `(testsuites
                     nil
-                    (testsuite ,(testsuite-attrs
-                                 "suite"
-                                 :time "3.000000"))))))
+                    ,(testsuite "suite" :time "3.000000")))))
       (it "for any outer suite"
         (let ((res (esxml-buttercup-junit-suite "master" '(describe "suite"))))
           (expect res :to-esxml-match
