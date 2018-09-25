@@ -184,6 +184,56 @@ will be set to that string value."
   (it "should handle xml entities"
 	(expect (buttercup-junit--escape-string "\"'&") :to-equal "&quot;&apos;&amp;")))
 
+(defun test-buttercup-junit--remove-keys (rest-list &rest keys)
+  "Remove all key-value pairs from REST-LIST for all KEYS.
+Useful to remove &key arguments from a &rest argument in
+`cl-defun's and `cl-defmacro's.
+
+Example:
+ (test-buttercup-junit--remove-keys '(1 :foo 2 3) :foo :bar)
+ -> '(1 3)"
+  (let (filtered elt)
+    (while rest-list
+      (setq elt (pop rest-list))
+      (if (memq elt keys)
+          (pop rest-list)
+        (push elt filtered)))
+    (nreverse filtered)))
+
+(cl-defun testsuite (name
+                     &rest contains
+                     &key (fail 0) (err 0) (skip 0) (tests (+ fail skip err))
+                     (stamp test-buttercup-junit-timestamp-re)
+                     (host ".+") (time "[0-9]+\\.[0-9]+")
+                     &allow-other-keys)
+  "Return an esxml list for a testsuite tag.
+NAME is the suite description.
+FAIL is the number of failed testcases, default 0.
+ERR is the number of testcases that threw an error, default 0.
+SKIP is the number of skipped (pending) testcases, default 0.
+TESTS is the total number of testcases, defaults to FAIL + ERR + SKIP.
+STAMP should be a JUnit timestamp string or a time value as
+      returned by `current-time'.  STAMP defaults to
+      `test-buttercup-junit-timestamp-re'.
+HOST is a hostname, default `.+'.
+TIME is the elapsed time in seconds, default `[0-9]+\\.[0-9]+'."
+  (declare (indent defun))
+  `(testsuite
+    ((name . ,name)
+     (timestamp . ,(cond ((stringp stamp) stamp)
+                         ((listp stamp)
+                          (regexp-quote
+                           (format-time-string "%Y-%m-%d %T%z" stamp)))
+                         (t (error "Unexpected stamp argument type %s"
+                                   (type-of stamp)))))
+     (hostname . ,host)
+     (tests . ,(number-to-string tests))
+     (failures . ,(number-to-string fail))
+     (errors . ,(number-to-string err)) (time . ,time)
+     (skipped . ,(number-to-string skip)))
+    ,@(test-buttercup-junit--remove-keys contains :fail :err :skip
+                                         :tests :stamp :host :time)))
+
 (cl-defun testsuite-attrs (name &key
 								(fail 0) (err 0) (skip 0) (tests (+ fail skip err))
 								(stamp test-buttercup-junit-timestamp-re)
