@@ -352,23 +352,32 @@ If SKIP is non-nil, include the `skip' attribute."
                      ,(testsuite-attrs "master" :stamp spytime)
                      (testsuite ,(testsuite-attrs "suite"
                                                   :stamp spytime)))))))))
-  (it "should report correct elapsed time for suites"
+
+  (describe "should report correct elapsed time"
     (let* (first-time spytime)
-      (setq first-time (current-time)
-            spytime first-time)
-      (spy-on 'current-time
-              :and-call-fake
-              (lambda ()
-                (prog1 spytime
-                  (setq spytime (time-add spytime (seconds-to-time 1.5))))))
-      (let ((res (esxml-buttercup-junit-suite '(describe "suite"))))
-        (expect res :to-esxml-match
-                `(testsuites
-                  nil
-                  (testsuite ,(testsuite-attrs
-                               "suite"
-                               :tests 0
-                               :time "3.000000")))))))
+      (before-each
+        (setq first-time (current-time)
+              spytime first-time)
+        (spy-on 'current-time
+                :and-call-fake
+                (lambda ()
+                  (prog1 spytime
+                    (setq spytime (time-add spytime (seconds-to-time 1.5)))))))
+      (it "for suites"
+        (let ((res (esxml-buttercup-junit-suite '(describe "suite"))))
+          (expect res :to-esxml-match
+                  `(testsuites
+                    nil
+                    (testsuite ,(testsuite-attrs
+                                 "suite"
+                                 :time "3.000000"))))))
+      (it "for any outer suite"
+        (let ((res (esxml-buttercup-junit-suite "master" '(describe "suite"))))
+          (expect res :to-esxml-match
+                  `(testsuites
+                    nil
+                    ,(testsuite "master" :time "9.000000"
+                                (testsuite "suite" :time "3.000000"))))))))
   (it "should report correct elapsed time for specs"
     (let (start-time suite spec)
       (setq start-time (current-time)
