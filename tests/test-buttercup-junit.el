@@ -266,6 +266,7 @@ CLASS is the value if the `class' attribute, default `buttercup'.
 TIME is the elapsed time, default `[0-9]+\\.[0-9]+'.
 If SKIP is non-nil, include the `skip' attribute."
   (let ((attrs `((name . ,name) (classname . ,class) (time . ,time))))
+    (setq contains (test-buttercup-junit--remove-keys contains :class :time))
 	(cond (skip `(testcase ,attrs (skipped nil)))
 		  (contains `(testcase ,attrs ,@contains))
 		  (t `(testcase ,attrs)))))
