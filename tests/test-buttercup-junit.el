@@ -365,14 +365,17 @@ If SKIP is non-nil, include the `skip' attribute."
           (expect res :to-esxml-match
                   `(testsuites
                     nil
-                    ,(testsuite "suite" :time "3.000000")))))
+                    ,(testsuite "suite" :time "1.500000")))))
       (it "for any outer suite"
-        (let ((res (esxml-buttercup-junit-suite "master" '(describe "suite"))))
+        (let ((res (esxml-buttercup-junit-suite "master"
+                                                '(describe "first")
+                                                '(describe "second"))))
           (expect res :to-esxml-match
                   `(testsuites
                     nil
-                    ,(testsuite "master" :time "9.000000"
-                                (testsuite "suite" :time "3.000000"))))))))
+                    ,(testsuite "master" :time "3.000000"
+                       (testsuite "first" :time "1.500000")
+                       (testsuite "second" :time "1.500000"))))))))
   (it "should report correct elapsed time for specs"
     (let (start-time suite spec)
       (setq start-time (current-time)

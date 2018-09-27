@@ -223,12 +223,15 @@ sequence, then pass the result to `xml-escape-string'."
 SUITES is a list of `buttercup-suite' structs for all the
 suites that will run."
   (let (failures errors time)
-	(insert (make-string buttercup-junit--indent-level ?\s)
-			(format "<testsuite name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\""
-					(buttercup-junit--escape-string name)
-					(format-time-string "%Y-%m-%d %T%z" (current-time)) ; timestamp
-					(buttercup-junit--escape-string (system-name)) ;hostname
-					(buttercup-suites-total-specs-defined suites)))
+    (insert
+     (make-string buttercup-junit--indent-level ?\s)
+     (format "<testsuite name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\""
+             (buttercup-junit--escape-string name)
+             (format-time-string
+              "%Y-%m-%d %T%z"
+              (buttercup-suite-or-spec-time-started (car suites))) ; timestamp
+             (buttercup-junit--escape-string (system-name)) ;hostname
+             (buttercup-suites-total-specs-defined suites)))
 	(setq failures (point-marker))
 	(insert "\" errors=\"")
 	(setq errors (point-marker))
@@ -238,7 +241,8 @@ suites that will run."
 					(buttercup-suites-total-specs-pending suites))
 			"\n")
 	(cl-incf buttercup-junit--indent-level)
-	(push (list name suites failures errors time (current-time)) buttercup-junit--state-stack)))
+    (push (list name suites failures errors time)
+          buttercup-junit--state-stack)))
 
 (defun buttercup-junit--close-testsuite (suite)
   "Insert the closing tag of the testsuite SUITE."
@@ -255,7 +259,7 @@ that will run."
 SUITES is a list of `buttercup-suite' structs for all the suites
 that will run."
   (cl-decf buttercup-junit--indent-level)
-  (cl-destructuring-bind (orig-name orig-suites failures errors time start-time)
+  (cl-destructuring-bind (orig-name orig-suites failures errors time)
 	  (pop buttercup-junit--state-stack)
 	(ignore orig-suites)
 	(unless (string= name orig-name) (error "Corrupted buttercup-junit--state-stack"))
@@ -264,8 +268,11 @@ that will run."
 								  (number-to-string (buttercup-suites-total-specs-failed suites)))
 	  (buttercup-junit--insert-at errors
 	                              (number-to-string (buttercup-suites-total-specs-status suites 'error)))
-	  (buttercup-junit--insert-at time
-								  (format "%f" (float-time (time-subtract (current-time) start-time))))))
+      (buttercup-junit--insert-at
+       time
+       (format "%f" (float-time
+                     (cl-reduce #'time-add
+                                (mapcar #'buttercup-elapsed-time suites)))))))
   (insert (make-string buttercup-junit--indent-level ?\s)
 		  "</testsuite>\n"))
 
