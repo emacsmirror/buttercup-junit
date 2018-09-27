@@ -200,6 +200,14 @@ Example:
         (push elt filtered)))
     (nreverse filtered)))
 
+(defun testsuites (&rest contains)
+  "Return an esxml list for a `testsuites' tag.
+CONTAINS should be the contained esxml lists."
+  (declare (indent defun))
+  (if contains
+      `(testsuites nil ,@contains)
+    '(testsuites nil)))
+
 (cl-defun testsuite (name
                      &rest contains
                      &key (fail 0) (err 0) (skip 0) (tests (+ fail skip err))
@@ -256,9 +264,8 @@ If SKIP is non-nil, include the `skip' attribute."
   (after-each (spy-calls-reset 'buttercup-junit--exit-code))
   (it "should handle success, failure and pending"
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite1) :to-esxml-match
-			`(testsuites
-			  nil
-              ,(testsuite "suite1" :tests 3 :fail 1 :skip 1
+            (testsuites
+             (testsuite "suite1" :tests 3 :fail 1 :skip 1
                  (testcase "1.1 should pass")
                  (testcase "1.2 should skip" :skip t)
                  (testcase "1.3 should fail"
@@ -267,27 +274,24 @@ If SKIP is non-nil, include the `skip' attribute."
                             "Traceback .*"))))))
   (it "should handle nested describes"
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite2) :to-esxml-match
-			`(testsuites
-			  nil
-              ,(testsuite "suite1" :tests 3
+            (testsuites
+              (testsuite "suite1" :tests 3
                  (testcase "1.1 should pass")
                  (testsuite "suite2" :tests 1
                    (testcase "2.1 should pass"))
                  (testcase "1.2 should pass")))))
   (it "should handle erroring testcases"
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite3) :to-esxml-match
-			`(testsuites
-			  nil
-              ,(testsuite "suite1" :err 1
+            (testsuites
+              (testsuite "suite1" :err 1
                  (testcase "should error"
                    '(error ((message . "(wrong-type-argument stringp 1)")
                             (type . "error")) "Traceback.*"))))))
   (it "should report correct test state numbers when using outer-suite"
 	;; neither the error numbering nor the outer suite works yet
 	(expect (esxml-buttercup-junit-suite  "outer" test-buttercup-junit-suite4) :to-esxml-match
-			`(testsuites
-			  nil
-              ,(testsuite "outer" :tests 4 :fail 1 :skip 1 :err 1
+            (testsuites
+             (testsuite "outer" :tests 4 :fail 1 :skip 1 :err 1
                  (testsuite "suite4" :tests 4 :fail 1 :skip 1 :err 1
                    (testcase "4.1 should pass")
                    (testcase "4.2 should skip" :skip t)
@@ -300,9 +304,8 @@ If SKIP is non-nil, include the `skip' attribute."
   (it "should handle special XML chars in attributes"
 	(expect (esxml-buttercup-junit-suite '(describe "suite with &><\"" (it "should handle &><\"" (expect 1 :to-equal 1))))
 			:to-esxml-match
-			`(testsuites
-			  nil
-              ,(testsuite "suite with &><\"" :tests 1
+            (testsuites
+             (testsuite "suite with &><\"" :tests 1
                  (testcase "should handle &><\""))))))
 
 (describe "The timestamps"
@@ -336,9 +339,7 @@ If SKIP is non-nil, include the `skip' attribute."
             (expect (with-current-buffer buttercup-junit--buffer
                       (xml-to-esxml (buffer-string)))
                     :to-esxml-match
-                    `(testsuites
-                      nil
-                      ,(testsuite "suite" :tests 1 :stamp start-time)))))
+                    (testsuites (testsuite "suite" :tests 1 :stamp start-time)))))
         (it "for any outer suite"
           (buttercup-junit--with-local-vars
             (setq buttercup-junit-master-suite "master")
@@ -346,9 +347,8 @@ If SKIP is non-nil, include the `skip' attribute."
             (expect (with-current-buffer buttercup-junit--buffer
                       (xml-to-esxml (buffer-string)))
                     :to-esxml-match
-                    `(testsuites
-                      nil
-                      ,(testsuite "master" :tests 1 :stamp start-time
+                    (testsuites
+                      (testsuite "master" :tests 1 :stamp start-time
                          (testsuite "suite" :tests 1 :stamp start-time)
                          (testsuite "suite2" :stamp (start+ 1.5))))))))
       (describe "should report correct elapsed time"
@@ -358,9 +358,8 @@ If SKIP is non-nil, include the `skip' attribute."
             (expect (with-current-buffer buttercup-junit--buffer
                       (xml-to-esxml (buffer-string)))
                     :to-esxml-match
-                    `(testsuites
-                      nil
-                      ,(testsuite  "suite" :tests 1 :time "1.000000")))))
+                    (testsuites
+                     (testsuite  "suite" :tests 1 :time "1.000000")))))
         (it "for any outer suite"
           (buttercup-junit--with-local-vars
             (setq buttercup-junit-master-suite "master")
@@ -368,9 +367,8 @@ If SKIP is non-nil, include the `skip' attribute."
             (expect (with-current-buffer buttercup-junit--buffer
                       (xml-to-esxml (buffer-string)))
                     :to-esxml-match
-                    `(testsuites
-                      nil
-                      ,(testsuite "master" :tests 1 :time "1.500000"
+                    (testsuites
+                     (testsuite "master" :tests 1 :time "1.500000"
                          (testsuite "suite" :tests 1 :time "1.000000")
                          (testsuite "suite2" :time "0.500000")))))))
       (it "should report correct elapsed time for specs"
@@ -382,9 +380,7 @@ If SKIP is non-nil, include the `skip' attribute."
           (expect (with-current-buffer buttercup-junit--buffer
                     (xml-to-esxml (buffer-string)))
                   :to-esxml-match
-                  `(testsuites
-                    nil
-                    ,(testcase "spec" :time "0.250000"))))))))
+                  (testsuites (testcase "spec" :time "0.250000"))))))))
 
 (describe "Return value"
   (before-each (spy-on 'buttercup-junit--exit-code))
