@@ -373,29 +373,18 @@ If SKIP is non-nil, include the `skip' attribute."
                       ,(testsuite "master" :tests 1 :time "1.500000"
                          (testsuite "suite" :tests 1 :time "1.000000")
                          (testsuite "suite2" :time "0.500000")))))))
-  (it "should report correct elapsed time for specs"
-    (let (start-time suite spec)
-      (setq start-time (current-time)
-            suite (make-buttercup-suite
-                   :description "suite"
-                   :time-started start-time
-                   :time-ended (time-add start-time (seconds-to-time 1)))
-            spec (make-buttercup-spec
-                  :description "spec"
-                  :time-started (time-add start-time (seconds-to-time 0.25))
-                  :time-ended (time-add start-time (seconds-to-time 0.5))))
-      (buttercup-suite-add-child suite spec)
-      (buttercup-junit--with-local-vars
-        (buttercup-junit-reporter 'buttercup-started nil)
-        (buttercup-junit-reporter 'spec-started spec)
-        (buttercup-junit-reporter 'spec-done spec)
-        (buttercup-junit-reporter 'buttercup-done (list suite))
-        (expect (with-current-buffer buttercup-junit--buffer
-                  (xml-to-esxml (buffer-string)))
-                :to-esxml-match
-                `(testsuites
-                  nil
-                  ,(testcase "spec" :time "0.250000")))))))))
+      (it "should report correct elapsed time for specs"
+        (buttercup-junit--with-local-vars
+          (buttercup-junit-reporter 'buttercup-started nil)
+          (buttercup-junit-reporter 'spec-started spec)
+          (buttercup-junit-reporter 'spec-done spec)
+          (buttercup-junit-reporter 'buttercup-done (list suite))
+          (expect (with-current-buffer buttercup-junit--buffer
+                    (xml-to-esxml (buffer-string)))
+                  :to-esxml-match
+                  `(testsuites
+                    nil
+                    ,(testcase "spec" :time "0.250000"))))))))
 
 (describe "Return value"
   (before-each (spy-on 'buttercup-junit--exit-code))
