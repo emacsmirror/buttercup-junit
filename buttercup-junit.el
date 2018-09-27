@@ -6,7 +6,7 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 0.5.2
+;; Version: 0.6.0
 ;; Package-Requires: ((emacs "24.3") (buttercup "20170929.512"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
