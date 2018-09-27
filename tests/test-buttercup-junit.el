@@ -234,29 +234,6 @@ TIME is the elapsed time in seconds, default `[0-9]+\\.[0-9]+'."
     ,@(test-buttercup-junit--remove-keys contains :fail :err :skip
                                          :tests :stamp :host :time)))
 
-(cl-defun testsuite-attrs (name &key
-								(fail 0) (err 0) (skip 0) (tests (+ fail skip err))
-								(stamp test-buttercup-junit-timestamp-re)
-								(host ".+") (time "[0-9]+\\.[0-9]+"))
-  "Return an esxml attribute alist for testsuite tags.
-NAME is the suite description.
-FAIL is the number of failed testcases, default 0.
-ERR is the number of testcases that threw an error, default 0.
-SKIP is the number of skipped (pending) testcases, default 0.
-TESTS is the total number of testcases, defaults to FAIL + ERR + SKIP.
-STAMP should be a JUnit timestamp string or a time value as
-      returned by `current-time'.  STAMP defaults to
-      `test-buttercup-junit-timestamp-re'.
-HOST is a hostname, default `.+'.
-TIME is the elapsed time in seconds, default `[0-9]+\\.[0-9]+'."
-  `((name . ,name)
-    (timestamp . ,(cond ((stringp stamp) stamp)
-                        ((listp stamp) (regexp-quote (format-time-string "%Y-%m-%d %T%z" stamp)))
-                        (t (error "Unexpected stamp argument type %s" (type-of stamp)))))
-    (hostname . ,host)
-	(tests . ,(number-to-string tests)) (failures . ,(number-to-string fail))
-	(errors . ,(number-to-string err)) (time . ,time) (skipped . ,(number-to-string skip))))
-
 (cl-defun testcase (name &rest contains &key (class "buttercup") (time "[0-9]+\\.[0-9]+")
 						 skip &allow-other-keys)
   "Return an esxml list for a testcase tag.
