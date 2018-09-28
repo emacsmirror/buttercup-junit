@@ -203,6 +203,23 @@ SUITES is a list of all suites that should be reported in this run."
     (buttercup-junit--open-outer-testsuite buttercup-junit-master-suite
                                            suites)))
 
+(defun buttercup-junit--end-file (suites)
+  "Insert the end of the JUnit file in the current buffer.
+SUITES is the list of all suites that were run."
+  (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
+    (buttercup-junit--close-outer-testsuite buttercup-junit-master-suite
+                                            suites))
+  (cl-decf buttercup-junit--indent-level)
+  (insert (make-string buttercup-junit--indent-level ?\s)
+          "</testsuites>\n")
+  (when buttercup-junit--to-stdout
+    (send-string-to-terminal (buffer-string)))
+  (when buttercup-junit-result-file
+    (write-file buttercup-junit-result-file))
+  (unless (zerop (+ (buttercup-suites-total-specs-failed suites)
+                    (buttercup-suites-total-specs-status suites 'error)))
+    (buttercup-junit--exit-code)))
+
 (defun buttercup-junit--open-testsuite (suite)
   "Insert the opening tag of the testsuite element for SUITE.
 SUITE is a `buttercup-suite' struct."
@@ -357,20 +374,7 @@ and ARG.  A new output buffer is created on the
 	  (`suite-done
 	   (buttercup-junit--close-testsuite arg))
 	  ;; buttercup-done -- All suites have run, the test run is over.")
-	  (`buttercup-done
-	   (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
-		 (buttercup-junit--close-outer-testsuite buttercup-junit-master-suite arg))
-	   (cl-decf buttercup-junit--indent-level)
-	   (insert (make-string buttercup-junit--indent-level ?\s)
-			   "</testsuites>\n")
-	   (when buttercup-junit--to-stdout
-		 (send-string-to-terminal (buffer-string)))
-	   (when buttercup-junit-result-file
-		 (write-file buttercup-junit-result-file))
-	   (unless (zerop (+ (buttercup-suites-total-specs-failed arg)
-                         (buttercup-suites-total-specs-status arg 'error)))
-		 (buttercup-junit--exit-code))
-	   ))))
+      (`buttercup-done (buttercup-junit--end-file arg)))))
 
 (defun buttercup-junit--exit-code ()
   "Signal error so script return value is failed.
