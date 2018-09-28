@@ -192,6 +192,17 @@ SUITE' in `commandline-args-left'."
   (setq marker nil)
   (apply #'insert insert-args))
 
+(defun buttercup-junit--start-file (suites)
+  "Insert the start of the JUnit file into the current buffer.
+SUITES is a list of all suites that should be reported in this run."
+  (set-buffer-file-coding-system 'utf-8)
+  (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          "<testsuites>\n")
+  (cl-incf buttercup-junit--indent-level)
+  (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
+    (buttercup-junit--open-outer-testsuite buttercup-junit-master-suite
+                                           suites)))
+
 (defun buttercup-junit--open-testsuite (suite)
   "Insert the opening tag of the testsuite element for SUITE.
 SUITE is a `buttercup-suite' struct."
@@ -332,13 +343,7 @@ and ARG.  A new output buffer is created on the
 	(pcase event
       ;; buttercup-started -- The test run is starting. The argument is
       ;; a list of suites this run will execute.
-	  (`buttercup-started
-	   (set-buffer-file-coding-system 'utf-8)
-	   (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-			   "<testsuites>\n")
-	   (cl-incf buttercup-junit--indent-level)
-	   (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
-		 (buttercup-junit--open-outer-testsuite buttercup-junit-master-suite arg)))
+      (`buttercup-started (buttercup-junit--start-file arg))
 	  ;; suite-started -- A suite is starting. The argument is the suite.
 	  ;;  See `make-buttercup-suite' for details on this structure.
 	  (`suite-started
