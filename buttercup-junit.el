@@ -164,7 +164,7 @@ options `--xmlfile XMLFILE', `--junit-stdout', and `--outer-suite
 SUITE' in `commandline-args-left'."
   (interactive)
   (with-buttercup-junit-reporter
-    (apply buttercup-run-markdown-buffer markdown-buffers)))
+    (apply #'buttercup-run-markdown-buffer markdown-buffers)))
 
 ;;;###autoload
 (defun buttercup-junit-run-markdown ()
