@@ -376,18 +376,21 @@ and ARG.  A new output buffer is created on the
       (`buttercup-started (buttercup-junit--start-file arg))
 	  ;; suite-started -- A suite is starting. The argument is the suite.
 	  ;;  See `make-buttercup-suite' for details on this structure.
-	  (`suite-started
-	   (buttercup-junit--open-testsuite arg))
+      (`suite-started)
+      ;;(buttercup-junit--open-testsuite arg))
 	  ;; spec-started -- A spec is starting. The argument is the spec.
 	  ;;   See `make-buttercup-spec' for details on this structure.
       (`spec-started) ; ignored
       ;; spec-done -- A spec has finished executing. The argument is the spec.
-      (`spec-done (buttercup-junit--testcase arg))
+      (`spec-done); (buttercup-junit--testcase arg))
 	  ;; suite-done -- A suite has finished. The argument is the spec.
-	  (`suite-done
-	   (buttercup-junit--close-testsuite arg))
+      (`suite-done)
+      ;;(buttercup-junit--close-testsuite arg))
 	  ;; buttercup-done -- All suites have run, the test run is over.")
-      (`buttercup-done (buttercup-junit--end-file arg)))))
+      (`buttercup-done
+       (dolist (suite arg)
+         (buttercup-junit--testsuite suite))
+       (buttercup-junit--end-file arg)))))
 
 (defun buttercup-junit--exit-code ()
   "Signal error so script return value is failed.
