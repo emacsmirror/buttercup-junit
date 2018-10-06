@@ -346,6 +346,19 @@ that will run."
   (insert (if (bolp) (make-string buttercup-junit--indent-level ?\s) "")
           "</testcase>\n"))
 
+(defun buttercup-junit--testsuite (suite)
+  "Print a `testsuite' xml element for SUITE to the current buffer.
+Recursively print any contained suite or spec."
+  (let ((start (point)))
+  (buttercup-junit--open-testsuite suite)
+  (dolist (child (buttercup-suite-children suite))
+    (if (buttercup-spec-p child)
+        (buttercup-junit--testcase child)
+      (buttercup-junit--testsuite child)))
+  (buttercup-junit--close-testsuite suite)
+  (buffer-substring-no-properties start (point))
+  nil))
+
 ;;;###autoload
 (defun buttercup-junit-reporter (event arg)
   "Insert JUnit tags into the `*junit*' buffer according to EVENT and ARG.
