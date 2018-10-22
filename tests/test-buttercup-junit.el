@@ -260,8 +260,12 @@ If SKIP is non-nil, include the `skip' attribute."
 (describe "JUnit XML output"
   :var ((timestamp (cons 'timestamp test-buttercup-junit-timestamp-re))
 		(time (cons 'time "[0-9]+\\.[0-9]+")))
-  (before-each (spy-on 'buttercup-junit--exit-code :and-return-value nil ))
-  (after-each (spy-calls-reset 'buttercup-junit--exit-code))
+  (before-each
+    (spy-on 'error :and-call-fake
+            (lambda (string &rest args)
+              (unless (and (string= "" string)
+                           (null args))
+                (signal 'error (list (apply #'format-message args)))))))
   (it "should handle success, failure and pending"
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite1) :to-esxml-match
             (testsuites
@@ -383,20 +387,27 @@ If SKIP is non-nil, include the `skip' attribute."
                   (testsuites (testcase "spec" :time "0.250000"))))))))
 
 (describe "Return value"
-  (before-each (spy-on 'buttercup-junit--exit-code))
-  (after-each (spy-calls-reset 'buttercup-junit--exit-code))
+  :var (exit-code)
+  (before-each
+    (setq exit-code nil)
+    (spy-on 'error :and-call-fake
+            (lambda (&rest args)
+              (if (and (string= "" (car args))
+                       (null (cdr args)))
+                  (setq exit-code t)
+                (signal 'error (list (apply #'format-message args)))))))
   (describe "when all tests pass"
 	(it "should be ok"
 	  (buttercup-junit-suite test-buttercup-junit-suite2)
-	  (expect 'buttercup-junit--exit-code :not :to-have-been-called)))
+      (expect exit-code :not :to-be-truthy)))
   (describe "when a test fails"
 	(it "should be fail"
 	  (buttercup-junit-suite test-buttercup-junit-suite1)
-	  (expect 'buttercup-junit--exit-code :to-have-been-called)))
+      (expect exit-code :to-be-truthy)))
   (describe "when there is an error in a test"
 	(it "should be fail"
 	  (buttercup-junit-suite test-buttercup-junit-suite3)
-	  (expect 'buttercup-junit--exit-code :to-have-been-called))))
+      (expect exit-code :to-be-truthy))))
 
 (provide 'test-buttercup-junit)
 ;;; test-buttercup-junit.el ends here
