@@ -254,6 +254,23 @@ SUITES is a list of `buttercup-suite' structs for all the suites
 that will run."
   (buttercup-junit--close-testsuite-impl name suites))
 
+(defun buttercup-junit--error-p (spec)
+  "Return t if SPEC has thrown an error."
+  (and (eq 'failed (buttercup-spec-status spec))
+       (let ((desc (buttercup-spec-failure-description spec)))
+         (and (consp desc)
+              (eq 'error (car desc))))))
+
+(defun buttercup-junit--errors (suites)
+  "Return the total number (recursively) of erroring testcases in SUITES."
+  (cl-loop for spec in (buttercup--specs suites)
+           count (buttercup-junit--error-p spec)))
+
+(defun buttercup-junit--failures (suites)
+  "Return the total number (recursively) of failed testcases in SUITES."
+  (- (buttercup-suites-total-specs-failed suites)
+     (buttercup-junit--errors suites)))
+
 (defun buttercup-junit--close-testsuite-impl (name suites)
   "Insert the closing tag of the testsuite NAME.
 SUITES is a list of `buttercup-suite' structs for all the suites
@@ -265,9 +282,11 @@ that will run."
 	(unless (string= name orig-name) (error "Corrupted buttercup-junit--state-stack"))
 	(save-excursion
 	  (buttercup-junit--insert-at failures
-								  (number-to-string (buttercup-suites-total-specs-failed suites)))
+                                  (number-to-string
+                                   (buttercup-junit--failures suites)))
 	  (buttercup-junit--insert-at errors
-	                              (number-to-string (buttercup-suites-total-specs-status suites 'error)))
+                                  (number-to-string
+                                   (buttercup-junit--errors suites)))
       (buttercup-junit--insert-at
        time
        (format "%f" (float-time
@@ -297,8 +316,7 @@ that will run."
              ((eq (car desc) 'error)
               (setq tag "error"
                     message (pp-to-string (cadr desc))
-                    type (symbol-name (car desc)))
-              (setf (buttercup-spec-status spec) 'error))
+                    type (symbol-name (car desc))))
              (t (setq tag "failed"
                       message (pp-to-string desc)
                       type "unknown")))
