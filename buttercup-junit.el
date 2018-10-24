@@ -6,8 +6,8 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 0.6.1
-;; Package-Requires: ((emacs "24.3") (buttercup "20180921.930"))
+;; Version: 0.7.0
+;; Package-Requires: ((emacs "24.3") (buttercup "20181012.740"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -215,10 +215,7 @@ SUITES is the list of all suites that were run."
   (when buttercup-junit--to-stdout
     (send-string-to-terminal (buffer-string)))
   (when buttercup-junit-result-file
-    (write-file buttercup-junit-result-file))
-  (unless (zerop (+ (buttercup-suites-total-specs-failed suites)
-                    (buttercup-suites-total-specs-status suites 'error)))
-    (buttercup-junit--exit-code)))
+    (write-file buttercup-junit-result-file)))
 
 (defun buttercup-junit--open-testsuite (suite)
   "Insert the opening tag of the testsuite element for SUITE.
@@ -282,6 +279,23 @@ SUITES is a list of `buttercup-suite' structs for all the suites
 that will run."
   (buttercup-junit--close-testsuite-impl name suites))
 
+(defun buttercup-junit--error-p (spec)
+  "Return t if SPEC has thrown an error."
+  (and (eq 'failed (buttercup-spec-status spec))
+       (let ((desc (buttercup-spec-failure-description spec)))
+         (and (consp desc)
+              (eq 'error (car desc))))))
+
+(defun buttercup-junit--errors (suites)
+  "Return the total number (recursively) of erroring testcases in SUITES."
+  (cl-loop for spec in (buttercup--specs suites)
+           count (buttercup-junit--error-p spec)))
+
+(defun buttercup-junit--failures (suites)
+  "Return the total number (recursively) of failed testcases in SUITES."
+  (- (buttercup-suites-total-specs-failed suites)
+     (buttercup-junit--errors suites)))
+
 (defun buttercup-junit--close-testsuite-impl (name suites)
   "Insert the closing tag of the testsuite NAME.
 SUITES is a list of `buttercup-suite' structs for all the suites
@@ -293,9 +307,11 @@ that will run."
 	(unless (string= name orig-name) (error "Corrupted buttercup-junit--state-stack"))
 	(save-excursion
 	  (buttercup-junit--insert-at failures
-								  (number-to-string (buttercup-suites-total-specs-failed suites)))
+                                  (number-to-string
+                                   (buttercup-junit--failures suites)))
 	  (buttercup-junit--insert-at errors
-	                              (number-to-string (buttercup-suites-total-specs-status suites 'error)))
+                                  (number-to-string
+                                   (buttercup-junit--errors suites)))
       (buttercup-junit--insert-at
        time
        (format "%f" (float-time
@@ -325,8 +341,7 @@ that will run."
              ((eq (car desc) 'error)
               (setq tag "error"
                     message (pp-to-string (cadr desc))
-                    type (symbol-name (car desc)))
-              (setf (buttercup-spec-status spec) 'error))
+                    type (symbol-name (car desc))))
              (t (setq tag "failed"
                       message (pp-to-string desc)
                       type "unknown")))
@@ -391,11 +406,6 @@ and ARG.  A new output buffer is created on the
        (dolist (suite arg)
          (buttercup-junit--testsuite suite))
        (buttercup-junit--end-file arg)))))
-
-(defun buttercup-junit--exit-code ()
-  "Signal error so script return value is failed.
-This function exists only for testability reasons."
-	(error ""))
 
 (provide 'buttercup-junit)
 ;;; buttercup-junit.el ends here
