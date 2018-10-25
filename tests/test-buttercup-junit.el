@@ -378,13 +378,17 @@ If SKIP is non-nil, include the `skip' attribute."
       (it "should report correct elapsed time for specs"
         (buttercup-junit--with-local-vars
           (buttercup-junit-reporter 'buttercup-started nil)
+          (buttercup-junit-reporter 'suite-started suite)
           (buttercup-junit-reporter 'spec-started spec)
           (buttercup-junit-reporter 'spec-done spec)
+          (buttercup-junit-reporter 'suite-done suite)
           (buttercup-junit-reporter 'buttercup-done (list suite))
           (expect (with-current-buffer buttercup-junit--buffer
                     (xml-to-esxml (buffer-string)))
                   :to-esxml-match
-                  (testsuites (testcase "spec" :time "0.250000"))))))))
+                  (testsuites
+                    (testsuite "." :tests 1
+                      (testcase "spec" :time "0.250000")))))))))
 
 (describe "Return value"
   :var (exit-code)
