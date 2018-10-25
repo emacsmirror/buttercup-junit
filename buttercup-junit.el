@@ -388,7 +388,7 @@ and ARG.  A new output buffer is created on the
 	(pcase event
       ;; buttercup-started -- The test run is starting. The argument is
       ;; a list of suites this run will execute.
-      (`buttercup-started (buttercup-junit--start-file arg))
+      (`buttercup-started)
 	  ;; suite-started -- A suite is starting. The argument is the suite.
 	  ;;  See `make-buttercup-suite' for details on this structure.
       (`suite-started)
@@ -403,6 +403,7 @@ and ARG.  A new output buffer is created on the
       ;;(buttercup-junit--close-testsuite arg))
 	  ;; buttercup-done -- All suites have run, the test run is over.")
       (`buttercup-done
+       (buttercup-junit--start-file arg)
        (dolist (suite arg)
          (buttercup-junit--testsuite suite))
        (buttercup-junit--end-file arg)))))
