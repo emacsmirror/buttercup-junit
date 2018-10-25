@@ -385,28 +385,11 @@ and ARG.  A new output buffer is created on the
   (when (eq event `buttercup-started)
 	 (setq buttercup-junit--buffer (generate-new-buffer (generate-new-buffer-name "*junit*"))))
   (with-current-buffer buttercup-junit--buffer
-	(pcase event
-      ;; buttercup-started -- The test run is starting. The argument is
-      ;; a list of suites this run will execute.
-      (`buttercup-started)
-	  ;; suite-started -- A suite is starting. The argument is the suite.
-	  ;;  See `make-buttercup-suite' for details on this structure.
-      (`suite-started)
-      ;;(buttercup-junit--open-testsuite arg))
-	  ;; spec-started -- A spec is starting. The argument is the spec.
-	  ;;   See `make-buttercup-spec' for details on this structure.
-      (`spec-started) ; ignored
-      ;; spec-done -- A spec has finished executing. The argument is the spec.
-      (`spec-done); (buttercup-junit--testcase arg))
-	  ;; suite-done -- A suite has finished. The argument is the spec.
-      (`suite-done)
-      ;;(buttercup-junit--close-testsuite arg))
-	  ;; buttercup-done -- All suites have run, the test run is over.")
-      (`buttercup-done
+    (when (eq event 'buttercup-done)
        (buttercup-junit--start-file arg)
        (dolist (suite arg)
          (buttercup-junit--testsuite suite))
-       (buttercup-junit--end-file arg)))))
+       (buttercup-junit--end-file arg))))
 
 (provide 'buttercup-junit)
 ;;; buttercup-junit.el ends here
