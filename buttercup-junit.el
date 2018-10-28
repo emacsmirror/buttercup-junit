@@ -257,11 +257,18 @@ suites that will run."
               (buttercup-suite-or-spec-time-started (car suites))) ; timestamp
              (buttercup-junit--escape-string (system-name)) ;hostname
              (buttercup-suites-total-specs-defined suites)))
+    (insert (number-to-string
+             (buttercup-junit--failures suites)))
 	(setq failures (point-marker))
 	(insert "\" errors=\"")
-	(setq errors (point-marker))
+    (insert (number-to-string
+             (buttercup-junit--errors suites)))
+    (setq errors (point-marker))
 	(insert "\" time=\"")
-	(setq time (point-marker))
+    (insert (format "%f" (float-time
+                          (cl-reduce #'time-add
+                                     (mapcar #'buttercup-elapsed-time suites)))))
+    (setq time (point-marker))
 	(insert (format "\" skipped=\"%d\" >"
 					(buttercup-suites-total-specs-pending suites))
 			"\n")
@@ -304,19 +311,7 @@ that will run."
   (cl-destructuring-bind (orig-name orig-suites failures errors time)
 	  (pop buttercup-junit--state-stack)
 	(ignore orig-suites)
-	(unless (string= name orig-name) (error "Corrupted buttercup-junit--state-stack"))
-	(save-excursion
-	  (buttercup-junit--insert-at failures
-                                  (number-to-string
-                                   (buttercup-junit--failures suites)))
-	  (buttercup-junit--insert-at errors
-                                  (number-to-string
-                                   (buttercup-junit--errors suites)))
-      (buttercup-junit--insert-at
-       time
-       (format "%f" (float-time
-                     (cl-reduce #'time-add
-                                (mapcar #'buttercup-elapsed-time suites)))))))
+    (unless (string= name orig-name) (error "Corrupted buttercup-junit--state-stack")))
   (insert (make-string buttercup-junit--indent-level ?\s)
 		  "</testsuite>\n"))
 
