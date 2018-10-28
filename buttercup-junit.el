@@ -356,10 +356,10 @@ and ARG.  A new output buffer is created on the
 `buttercup-started' event, and its contents are written to
 `buttercup-junit-result-file' and possibly stdout on the
 `buttercup-done' event."
-  (when (eq event `buttercup-started)
-	 (setq buttercup-junit--buffer (generate-new-buffer (generate-new-buffer-name "*junit*"))))
-  (with-current-buffer buttercup-junit--buffer
-    (when (eq event 'buttercup-done)
+  (when (eq event 'buttercup-done)
+    (setq buttercup-junit--buffer
+          (generate-new-buffer (generate-new-buffer-name "*junit*")))
+    (with-current-buffer buttercup-junit--buffer
        (buttercup-junit--start-file arg)
        (dolist (suite arg)
          (buttercup-junit--testsuite suite))
