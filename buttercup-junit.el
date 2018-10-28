@@ -244,31 +244,23 @@ sequence, then pass the result to `xml-escape-string'."
 	 (buffer-string))))
 
 (defun buttercup-junit--open-testsuite-impl (name suites)
-    "Insert the opening tag of testsuite NAME.
+  "Insert the opening tag of testsuite NAME.
 SUITES is a list of `buttercup-suite' structs for all the
 suites that will run."
-    (insert
-     (make-string buttercup-junit--indent-level ?\s)
-     (format "<testsuite name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\""
-             (buttercup-junit--escape-string name)
-             (format-time-string
-              "%Y-%m-%d %T%z"
-              (buttercup-suite-or-spec-time-started (car suites))) ; timestamp
-             (buttercup-junit--escape-string (system-name)) ;hostname
-             (buttercup-suites-total-specs-defined suites)))
-    (insert (number-to-string
-             (buttercup-junit--failures suites)))
-	(insert "\" errors=\"")
-    (insert (number-to-string
-             (buttercup-junit--errors suites)))
-	(insert "\" time=\"")
-    (insert (format "%f" (float-time
-                          (cl-reduce #'time-add
-                                     (mapcar #'buttercup-elapsed-time suites)))))
-	(insert (format "\" skipped=\"%d\" >"
-					(buttercup-suites-total-specs-pending suites))
-			"\n")
-    (cl-incf buttercup-junit--indent-level))
+  (insert
+   (make-string buttercup-junit--indent-level ?\s)
+   (format "<testsuite name=\"%s\"" (buttercup-junit--escape-string name))
+   (format-time-string " timestamp=\"%Y-%m-%d %T%z\""
+                       (buttercup-suite-or-spec-time-started (car suites)))
+   (format " hostname=\"%s\"" (buttercup-junit--escape-string (system-name)))
+   (format " tests=\"%d\"" (buttercup-suites-total-specs-defined suites))
+   (format " failures=\"%d\"" (buttercup-junit--failures suites))
+   (format " errors=\"%d\"" (buttercup-junit--errors suites))
+   (format " time=\"%f\""
+           (float-time
+            (cl-reduce #'time-add (mapcar #'buttercup-elapsed-time suites))))
+   (format " skipped=\"%d\">\n" (buttercup-suites-total-specs-pending suites)))
+  (cl-incf buttercup-junit--indent-level))
 
 (defun buttercup-junit--close-testsuite (suite)
   "Insert the closing tag of the testsuite SUITE."
