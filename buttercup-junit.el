@@ -192,20 +192,6 @@ SUITE' in `commandline-args-left'."
   (setq marker nil)
   (apply #'insert insert-args))
 
-(defun buttercup-junit--end-file (suites)
-  "Insert the end of the JUnit file in the current buffer.
-SUITES is the list of all suites that were run."
-  (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
-    (buttercup-junit--close-outer-testsuite buttercup-junit-master-suite
-                                            suites))
-  (cl-decf buttercup-junit--indent-level)
-  (insert (make-string buttercup-junit--indent-level ?\s)
-          "</testsuites>\n")
-  (when buttercup-junit--to-stdout
-    (send-string-to-terminal (buffer-string)))
-  (when buttercup-junit-result-file
-    (write-file buttercup-junit-result-file)))
-
 (defun buttercup-junit--open-testsuite (suite)
   "Insert the opening tag of the testsuite element for SUITE.
 SUITE is a `buttercup-suite' struct."
@@ -358,7 +344,15 @@ and ARG.  A new output buffer is created on the
                                                  arg))
         (dolist (suite arg)
           (buttercup-junit--testsuite suite))
-        (buttercup-junit--end-file arg)))))
+        (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
+          (buttercup-junit--close-outer-testsuite buttercup-junit-master-suite
+                                                  arg)))
+      (insert "</testsuites>\n")
+      ;; Output XML data
+      (when buttercup-junit--to-stdout
+        (send-string-to-terminal (buffer-string)))
+      (when buttercup-junit-result-file
+        (write-file buttercup-junit-result-file)))))
 
 (provide 'buttercup-junit)
 ;;; buttercup-junit.el ends here
