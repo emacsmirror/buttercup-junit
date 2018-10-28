@@ -247,7 +247,6 @@ sequence, then pass the result to `xml-escape-string'."
     "Insert the opening tag of testsuite NAME.
 SUITES is a list of `buttercup-suite' structs for all the
 suites that will run."
-  (let (failures errors time)
     (insert
      (make-string buttercup-junit--indent-level ?\s)
      (format "<testsuite name=\"%s\" timestamp=\"%s\" hostname=\"%s\" tests=\"%d\" failures=\""
@@ -259,22 +258,17 @@ suites that will run."
              (buttercup-suites-total-specs-defined suites)))
     (insert (number-to-string
              (buttercup-junit--failures suites)))
-	(setq failures (point-marker))
 	(insert "\" errors=\"")
     (insert (number-to-string
              (buttercup-junit--errors suites)))
-    (setq errors (point-marker))
 	(insert "\" time=\"")
     (insert (format "%f" (float-time
                           (cl-reduce #'time-add
                                      (mapcar #'buttercup-elapsed-time suites)))))
-    (setq time (point-marker))
 	(insert (format "\" skipped=\"%d\" >"
 					(buttercup-suites-total-specs-pending suites))
 			"\n")
-	(cl-incf buttercup-junit--indent-level)
-    (push (list name suites failures errors time)
-          buttercup-junit--state-stack)))
+    (cl-incf buttercup-junit--indent-level))
 
 (defun buttercup-junit--close-testsuite (suite)
   "Insert the closing tag of the testsuite SUITE."
@@ -308,10 +302,6 @@ that will run."
 SUITES is a list of `buttercup-suite' structs for all the suites
 that will run."
   (cl-decf buttercup-junit--indent-level)
-  (cl-destructuring-bind (orig-name orig-suites failures errors time)
-	  (pop buttercup-junit--state-stack)
-	(ignore orig-suites)
-    (unless (string= name orig-name) (error "Corrupted buttercup-junit--state-stack")))
   (insert (make-string buttercup-junit--indent-level ?\s)
 		  "</testsuite>\n"))
 
