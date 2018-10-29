@@ -192,17 +192,6 @@ SUITE' in `commandline-args-left'."
   (setq marker nil)
   (apply #'insert insert-args))
 
-(defun buttercup-junit--start-file (suites)
-  "Insert the start of the JUnit file into the current buffer.
-SUITES is a list of all suites that should be reported in this run."
-  (set-buffer-file-coding-system 'utf-8)
-  (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          "<testsuites>\n")
-  (cl-incf buttercup-junit--indent-level)
-  (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
-    (buttercup-junit--open-outer-testsuite buttercup-junit-master-suite
-                                           suites)))
-
 (defun buttercup-junit--end-file (suites)
   "Insert the end of the JUnit file in the current buffer.
 SUITES is the list of all suites that were run."
@@ -360,10 +349,16 @@ and ARG.  A new output buffer is created on the
     (setq buttercup-junit--buffer
           (generate-new-buffer (generate-new-buffer-name "*junit*")))
     (with-current-buffer buttercup-junit--buffer
-       (buttercup-junit--start-file arg)
-       (dolist (suite arg)
-         (buttercup-junit--testsuite suite))
-       (buttercup-junit--end-file arg))))
+      (set-buffer-file-coding-system 'utf-8)
+      (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+              "<testsuites>\n")
+      (let ((buttercup-junit--indent-level 1))
+        (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
+          (buttercup-junit--open-outer-testsuite buttercup-junit-master-suite
+                                                 arg))
+        (dolist (suite arg)
+          (buttercup-junit--testsuite suite))
+        (buttercup-junit--end-file arg)))))
 
 (provide 'buttercup-junit)
 ;;; buttercup-junit.el ends here
