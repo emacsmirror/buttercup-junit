@@ -224,13 +224,6 @@ SUITE is a `buttercup-suite' struct."
    (format " skipped=\"%d\">\n" (buttercup-suites-total-specs-pending (list suite))))
   (cl-incf buttercup-junit--indent-level))
 
-(defun buttercup-junit--close-testsuite (suite)
-  "Insert the closing tag of the testsuite SUITE."
-  (ignore suite)
-  (cl-decf buttercup-junit--indent-level)
-  (insert (make-string buttercup-junit--indent-level ?\s)
-          "</testsuite>\n"))
-
 (defun buttercup-junit--error-p (spec)
   "Return t if SPEC has thrown an error."
   (and (eq 'failed (buttercup-spec-status spec))
@@ -298,7 +291,9 @@ Recursively print any contained suite or spec."
     (if (buttercup-spec-p child)
         (buttercup-junit--testcase child)
       (buttercup-junit--testsuite child)))
-  (buttercup-junit--close-testsuite suite))
+  (cl-decf buttercup-junit--indent-level)
+  (insert (make-string buttercup-junit--indent-level ?\s)
+          "</testsuite>\n"))
 
 (defun buttercup-junit--make-outer (description suites)
   "Create an outer suite DESCRIPTION with SUITES as children.
