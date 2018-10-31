@@ -192,11 +192,6 @@ SUITE' in `commandline-args-left'."
   (setq marker nil)
   (apply #'insert insert-args))
 
-(defun buttercup-junit--open-testsuite (suite)
-  "Insert the opening tag of the testsuite element for SUITE.
-SUITE is a `buttercup-suite' struct."
-  (buttercup-junit--open-testsuite-impl (buttercup-suite-description suite) (list suite)))
-
 (defun buttercup-junit--escape-string (string)
   "Convert STRING into a string containing valid XML character data.
 Convert all non-printable characters in string to a `^A'
@@ -212,29 +207,21 @@ sequence, then pass the result to `xml-escape-string'."
 		 (delete-char 1)))
 	 (buffer-string))))
 
-(defun buttercup-junit--open-testsuite-impl (name suites)
-  "Insert the opening tag of testsuite NAME.
-SUITES is a list of `buttercup-suite' structs for all the
-suites that will run."
+(defun buttercup-junit--open-testsuite (suite)
+  "Insert the opening tag of the testsuite element for SUITE.
+SUITE is a `buttercup-suite' struct."
   (insert
    (make-string buttercup-junit--indent-level ?\s)
-   (format "<testsuite name=\"%s\"" (buttercup-junit--escape-string name))
+   (format "<testsuite name=\"%s\""
+           (buttercup-junit--escape-string (buttercup-suite-description suite)))
    (format-time-string " timestamp=\"%Y-%m-%d %T%z\""
-                       (buttercup-suite-or-spec-time-started (car suites)))
+                       (buttercup-suite-or-spec-time-started suite))
    (format " hostname=\"%s\"" (buttercup-junit--escape-string (system-name)))
-   (format " tests=\"%d\"" (buttercup-suites-total-specs-defined suites))
-   (format " failures=\"%d\"" (buttercup-junit--failures suites))
-   (format " errors=\"%d\"" (buttercup-junit--errors suites))
-   (format " time=\"%f\""
-           (if (string= (buttercup-suite-description (car suites))
-                        name)
-               ;; actual suites
-               (float-time (buttercup-elapsed-time (car suites)))
-             ;; outer suite
-             (float-time
-              (time-subtract (buttercup-suite-or-spec-time-ended (car (last suites)))
-                             (buttercup-suite-or-spec-time-started (car suites))))))
-   (format " skipped=\"%d\">\n" (buttercup-suites-total-specs-pending suites)))
+   (format " tests=\"%d\"" (buttercup-suites-total-specs-defined (list suite)))
+   (format " failures=\"%d\"" (buttercup-junit--failures (list suite)))
+   (format " errors=\"%d\"" (buttercup-junit--errors (list suite)))
+   (format " time=\"%f\"" (float-time (buttercup-elapsed-time suite)))
+   (format " skipped=\"%d\">\n" (buttercup-suites-total-specs-pending (list suite))))
   (cl-incf buttercup-junit--indent-level))
 
 (defun buttercup-junit--close-testsuite (suite)
