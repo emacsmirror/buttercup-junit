@@ -226,7 +226,10 @@ SUITE is a `buttercup-suite' struct."
 
 (defun buttercup-junit--close-testsuite (suite)
   "Insert the closing tag of the testsuite SUITE."
-  (buttercup-junit--close-testsuite-impl (buttercup-suite-description suite) (list suite)))
+  (ignore suite)
+  (cl-decf buttercup-junit--indent-level)
+  (insert (make-string buttercup-junit--indent-level ?\s)
+          "</testsuite>\n"))
 
 (defun buttercup-junit--error-p (spec)
   "Return t if SPEC has thrown an error."
@@ -245,13 +248,6 @@ SUITE is a `buttercup-suite' struct."
   (- (buttercup-suites-total-specs-failed suites)
      (buttercup-junit--errors suites)))
 
-(defun buttercup-junit--close-testsuite-impl (name suites)
-  "Insert the closing tag of the testsuite NAME.
-SUITES is a list of `buttercup-suite' structs for all the suites
-that will run."
-  (cl-decf buttercup-junit--indent-level)
-  (insert (make-string buttercup-junit--indent-level ?\s)
-		  "</testsuite>\n"))
 
 (defun buttercup-junit--testcase (spec)
   "Print a `testcase' xml element for SPEC to the current buffer."
