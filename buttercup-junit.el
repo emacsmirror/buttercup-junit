@@ -274,7 +274,7 @@ Recursively print any contained suite or spec."
    (format "<testsuite name=\"%s\""
            (buttercup-junit--escape-string (buttercup-suite-description suite)))
    (format-time-string " timestamp=\"%Y-%m-%d %T%z\""
-                       (buttercup-suite-or-spec-time-started suite))
+                       (buttercup-suite-time-started suite))
    (format " hostname=\"%s\"" (buttercup-junit--escape-string (system-name)))
    (format " tests=\"%d\"" (buttercup-suites-total-specs-defined (list suite)))
    (format " failures=\"%d\"" (buttercup-junit--failures suite))
