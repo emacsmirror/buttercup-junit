@@ -197,12 +197,6 @@ SUITE' in `commandline-args-left'."
 SUITE is a `buttercup-suite' struct."
   (buttercup-junit--open-testsuite-impl (buttercup-suite-description suite) (list suite)))
 
-(defun buttercup-junit--open-outer-testsuite (name inner-suites)
-  "Insert the opening tag of the fake outer testsuite NAME.
-INNER-SUITES is a list of `buttercup-suite' structs for all the
-suites that will run."
-  (buttercup-junit--open-testsuite-impl name inner-suites))
-
 (defun buttercup-junit--escape-string (string)
   "Convert STRING into a string containing valid XML character data.
 Convert all non-printable characters in string to a `^A'
@@ -246,12 +240,6 @@ suites that will run."
 (defun buttercup-junit--close-testsuite (suite)
   "Insert the closing tag of the testsuite SUITE."
   (buttercup-junit--close-testsuite-impl (buttercup-suite-description suite) (list suite)))
-
-(defun buttercup-junit--close-outer-testsuite (name suites)
-  "Insert the closing tag of the fake outer testsuite NAME.
-SUITES is a list of `buttercup-suite' structs for all the suites
-that will run."
-  (buttercup-junit--close-testsuite-impl name suites))
 
 (defun buttercup-junit--error-p (spec)
   "Return t if SPEC has thrown an error."
