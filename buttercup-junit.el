@@ -214,15 +214,15 @@ sequence, then pass the result to `xml-escape-string'."
          (and (consp desc)
               (eq 'error (car desc))))))
 
-(defun buttercup-junit--errors (suites)
-  "Return the total number (recursively) of erroring testcases in SUITES."
-  (cl-loop for spec in (buttercup--specs suites)
+(defun buttercup-junit--errors (suite)
+  "Return the total number (recursively) of erroring testcases in SUITE."
+  (cl-loop for spec in (buttercup--specs (list suite))
            count (buttercup-junit--error-p spec)))
 
 (defun buttercup-junit--failures (suite)
   "Return the total number (recursively) of failed testcases in SUITE."
   (- (buttercup-suites-total-specs-failed (list suite))
-     (buttercup-junit--errors (list suite))))
+     (buttercup-junit--errors suite)))
 
 
 (defun buttercup-junit--testcase (spec)
@@ -278,7 +278,7 @@ Recursively print any contained suite or spec."
    (format " hostname=\"%s\"" (buttercup-junit--escape-string (system-name)))
    (format " tests=\"%d\"" (buttercup-suites-total-specs-defined (list suite)))
    (format " failures=\"%d\"" (buttercup-junit--failures suite))
-   (format " errors=\"%d\"" (buttercup-junit--errors (list suite)))
+   (format " errors=\"%d\"" (buttercup-junit--errors suite))
    (format " time=\"%f\"" (float-time (buttercup-elapsed-time suite)))
    (format " skipped=\"%d\">\n" (buttercup-suites-total-specs-pending (list suite))))
   (cl-incf buttercup-junit--indent-level)
