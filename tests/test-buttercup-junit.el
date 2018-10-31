@@ -372,7 +372,7 @@ If SKIP is non-nil, include the `skip' attribute."
                       (xml-to-esxml (buffer-string)))
                     :to-esxml-match
                     (testsuites
-                     (testsuite "master" :tests 1 :time "1.500000"
+                     (testsuite "master" :tests 1 :time "2.000000"
                          (testsuite "suite" :tests 1 :time "1.000000")
                          (testsuite "suite2" :time "0.500000")))))))
       (it "should report correct elapsed time for specs"

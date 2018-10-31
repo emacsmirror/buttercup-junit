@@ -232,8 +232,14 @@ suites that will run."
    (format " failures=\"%d\"" (buttercup-junit--failures suites))
    (format " errors=\"%d\"" (buttercup-junit--errors suites))
    (format " time=\"%f\""
-           (float-time
-            (cl-reduce #'time-add (mapcar #'buttercup-elapsed-time suites))))
+           (if (string= (buttercup-suite-description (car suites))
+                        name)
+               ;; actual suites
+               (float-time (buttercup-elapsed-time (car suites)))
+             ;; outer suite
+             (float-time
+              (time-subtract (buttercup-suite-or-spec-time-ended (car (last suites)))
+                             (buttercup-suite-or-spec-time-started (car suites))))))
    (format " skipped=\"%d\">\n" (buttercup-suites-total-specs-pending suites)))
   (cl-incf buttercup-junit--indent-level))
 
