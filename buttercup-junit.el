@@ -207,23 +207,6 @@ sequence, then pass the result to `xml-escape-string'."
 		 (delete-char 1)))
 	 (buffer-string))))
 
-(defun buttercup-junit--open-testsuite (suite)
-  "Insert the opening tag of the testsuite element for SUITE.
-SUITE is a `buttercup-suite' struct."
-  (insert
-   (make-string buttercup-junit--indent-level ?\s)
-   (format "<testsuite name=\"%s\""
-           (buttercup-junit--escape-string (buttercup-suite-description suite)))
-   (format-time-string " timestamp=\"%Y-%m-%d %T%z\""
-                       (buttercup-suite-or-spec-time-started suite))
-   (format " hostname=\"%s\"" (buttercup-junit--escape-string (system-name)))
-   (format " tests=\"%d\"" (buttercup-suites-total-specs-defined (list suite)))
-   (format " failures=\"%d\"" (buttercup-junit--failures (list suite)))
-   (format " errors=\"%d\"" (buttercup-junit--errors (list suite)))
-   (format " time=\"%f\"" (float-time (buttercup-elapsed-time suite)))
-   (format " skipped=\"%d\">\n" (buttercup-suites-total-specs-pending (list suite))))
-  (cl-incf buttercup-junit--indent-level))
-
 (defun buttercup-junit--error-p (spec)
   "Return t if SPEC has thrown an error."
   (and (eq 'failed (buttercup-spec-status spec))
@@ -286,7 +269,19 @@ SUITE is a `buttercup-suite' struct."
 (defun buttercup-junit--testsuite (suite)
   "Print a `testsuite' xml element for SUITE to the current buffer.
 Recursively print any contained suite or spec."
-  (buttercup-junit--open-testsuite suite)
+  (insert
+   (make-string buttercup-junit--indent-level ?\s)
+   (format "<testsuite name=\"%s\""
+           (buttercup-junit--escape-string (buttercup-suite-description suite)))
+   (format-time-string " timestamp=\"%Y-%m-%d %T%z\""
+                       (buttercup-suite-or-spec-time-started suite))
+   (format " hostname=\"%s\"" (buttercup-junit--escape-string (system-name)))
+   (format " tests=\"%d\"" (buttercup-suites-total-specs-defined (list suite)))
+   (format " failures=\"%d\"" (buttercup-junit--failures (list suite)))
+   (format " errors=\"%d\"" (buttercup-junit--errors (list suite)))
+   (format " time=\"%f\"" (float-time (buttercup-elapsed-time suite)))
+   (format " skipped=\"%d\">\n" (buttercup-suites-total-specs-pending (list suite))))
+  (cl-incf buttercup-junit--indent-level)
   (dolist (child (buttercup-suite-children suite))
     (if (buttercup-spec-p child)
         (buttercup-junit--testcase child)
