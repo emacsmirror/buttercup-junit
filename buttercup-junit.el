@@ -329,6 +329,16 @@ Recursively print any contained suite or spec."
       (buttercup-junit--testsuite child)))
   (buttercup-junit--close-testsuite suite))
 
+(defun buttercup-junit--make-outer (description suites)
+  "Create an outer suite DESCRIPTION with SUITES as children.
+The start time will be the same as the first suite, and the end
+time the same as the last suite."
+  (make-buttercup-suite
+   :description description
+   :children suites
+   :time-started (buttercup-suite-or-spec-time-started (car suites))
+   :time-ended (buttercup-suite-or-spec-time-ended (car (last suites)))))
+
 ;;;###autoload
 (defun buttercup-junit-reporter (event arg)
   "Insert JUnit tags into the `*junit*' buffer according to EVENT and ARG.
@@ -338,6 +348,9 @@ and ARG.  A new output buffer is created on the
 `buttercup-junit-result-file' and possibly stdout on the
 `buttercup-done' event."
   (when (eq event 'buttercup-done)
+    (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
+      (setq arg (list (buttercup-junit--make-outer buttercup-junit-master-suite
+                                                   arg))))
     (setq buttercup-junit--buffer
           (generate-new-buffer (generate-new-buffer-name "*junit*")))
     (with-current-buffer buttercup-junit--buffer
@@ -345,14 +358,8 @@ and ARG.  A new output buffer is created on the
       (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
               "<testsuites>\n")
       (let ((buttercup-junit--indent-level 1))
-        (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
-          (buttercup-junit--open-outer-testsuite buttercup-junit-master-suite
-                                                 arg))
         (dolist (suite arg)
-          (buttercup-junit--testsuite suite))
-        (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
-          (buttercup-junit--close-outer-testsuite buttercup-junit-master-suite
-                                                  arg)))
+          (buttercup-junit--testsuite suite)))
       (insert "</testsuites>\n")
       ;; Output XML data
       (when buttercup-junit--to-stdout
