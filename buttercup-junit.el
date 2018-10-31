@@ -233,7 +233,6 @@ sequence, then pass the result to `xml-escape-string'."
           "\" classname=\"buttercup\" time=\""
           (format "%f" (float-time (buttercup-elapsed-time spec)))
           "\">")
-  (cl-incf buttercup-junit--indent-level)
   (pcase (buttercup-spec-status spec)
     (`failed
      (let ((desc (buttercup-spec-failure-description spec))
@@ -250,7 +249,7 @@ sequence, then pass the result to `xml-escape-string'."
              (t (setq tag "failed"
                       message (pp-to-string desc)
                       type "unknown")))
-       (insert "\n" (make-string buttercup-junit--indent-level ?\s)
+       (insert "\n" (make-string (1+ buttercup-junit--indent-level) ?\s)
                "<" tag " message=\""
                (buttercup-junit--escape-string message) "\""
                " type=\"" (buttercup-junit--escape-string type) "\">"
@@ -260,9 +259,8 @@ sequence, then pass the result to `xml-escape-string'."
                  "\n"))
        (insert "</" tag ">\n")))
     (`pending
-     (insert "\n" (make-string buttercup-junit--indent-level ?\s)
+     (insert "\n" (make-string (1+ buttercup-junit--indent-level) ?\s)
              "<skipped/>\n")))
-  (cl-decf buttercup-junit--indent-level)
   (insert (if (bolp) (make-string buttercup-junit--indent-level ?\s) "")
           "</testcase>\n"))
 
