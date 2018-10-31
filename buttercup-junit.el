@@ -219,10 +219,10 @@ sequence, then pass the result to `xml-escape-string'."
   (cl-loop for spec in (buttercup--specs suites)
            count (buttercup-junit--error-p spec)))
 
-(defun buttercup-junit--failures (suites)
-  "Return the total number (recursively) of failed testcases in SUITES."
-  (- (buttercup-suites-total-specs-failed suites)
-     (buttercup-junit--errors suites)))
+(defun buttercup-junit--failures (suite)
+  "Return the total number (recursively) of failed testcases in SUITE."
+  (- (buttercup-suites-total-specs-failed (list suite))
+     (buttercup-junit--errors (list suite))))
 
 
 (defun buttercup-junit--testcase (spec)
@@ -277,7 +277,7 @@ Recursively print any contained suite or spec."
                        (buttercup-suite-or-spec-time-started suite))
    (format " hostname=\"%s\"" (buttercup-junit--escape-string (system-name)))
    (format " tests=\"%d\"" (buttercup-suites-total-specs-defined (list suite)))
-   (format " failures=\"%d\"" (buttercup-junit--failures (list suite)))
+   (format " failures=\"%d\"" (buttercup-junit--failures suite))
    (format " errors=\"%d\"" (buttercup-junit--errors (list suite)))
    (format " time=\"%f\"" (float-time (buttercup-elapsed-time suite)))
    (format " skipped=\"%d\">\n" (buttercup-suites-total-specs-pending (list suite))))
