@@ -6,7 +6,7 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 0.7.0
+;; Version: 0.8.0
 ;; Package-Requires: ((emacs "24.3") (buttercup "20181012.740"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
@@ -215,7 +215,6 @@ sequence, then pass the result to `xml-escape-string'."
   "Return the total number (recursively) of failed testcases in SUITE."
   (- (buttercup-suites-total-specs-failed (list suite))
      (buttercup-junit--errors suite)))
-
 
 (defun buttercup-junit--testcase (spec indent)
   "Print a `testcase' xml element for SPEC to the current buffer.
