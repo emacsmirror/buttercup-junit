@@ -62,10 +62,6 @@
 (defvar buttercup-junit--buffer nil
   "Buffer for buttercup-junit result file.")
 
-(defvar buttercup-junit--state-stack nil
-  "Stack for storing state between started and done events.")
-(make-variable-buffer-local 'buttercup-junit--state-stack)
-
 (defvar buttercup-junit--to-stdout nil
   "Whether to print the xml file to stdout as well.")
 
