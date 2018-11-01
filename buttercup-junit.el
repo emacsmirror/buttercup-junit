@@ -62,10 +62,6 @@
 (defvar buttercup-junit--buffer nil
   "Buffer for buttercup-junit result file.")
 
-(defvar buttercup-junit--indent-level 0
-  "Current report indent level.")
-(make-variable-buffer-local 'buttercup-junit--indent-level)
-
 (defvar buttercup-junit--state-stack nil
   "Stack for storing state between started and done events.")
 (make-variable-buffer-local 'buttercup-junit--state-stack)
@@ -225,9 +221,10 @@ sequence, then pass the result to `xml-escape-string'."
      (buttercup-junit--errors suite)))
 
 
-(defun buttercup-junit--testcase (spec)
-  "Print a `testcase' xml element for SPEC to the current buffer."
-  (insert (make-string buttercup-junit--indent-level ?\s)
+(defun buttercup-junit--testcase (spec indent)
+  "Print a `testcase' xml element for SPEC to the current buffer.
+The testcase tags will be indented with INDENT spaces."
+  (insert (make-string indent ?\s)
           "<testcase name=\""
           (buttercup-junit--escape-string (buttercup-spec-description spec))
           "\" classname=\"buttercup\" time=\""
@@ -249,7 +246,7 @@ sequence, then pass the result to `xml-escape-string'."
              (t (setq tag "failed"
                       message (pp-to-string desc)
                       type "unknown")))
-       (insert "\n" (make-string (1+ buttercup-junit--indent-level) ?\s)
+       (insert "\n" (make-string (1+ indent) ?\s)
                "<" tag " message=\""
                (buttercup-junit--escape-string message) "\""
                " type=\"" (buttercup-junit--escape-string type) "\">"
@@ -259,16 +256,17 @@ sequence, then pass the result to `xml-escape-string'."
                  "\n"))
        (insert "</" tag ">\n")))
     (`pending
-     (insert "\n" (make-string (1+ buttercup-junit--indent-level) ?\s)
+     (insert "\n" (make-string (1+ indent) ?\s)
              "<skipped/>\n")))
-  (insert (if (bolp) (make-string buttercup-junit--indent-level ?\s) "")
+  (insert (if (bolp) (make-string indent ?\s) "")
           "</testcase>\n"))
 
-(defun buttercup-junit--testsuite (suite)
+(defun buttercup-junit--testsuite (suite indent)
   "Print a `testsuite' xml element for SUITE to the current buffer.
-Recursively print any contained suite or spec."
+Recursively print any contained suite or spec.
+Each testsuite element will be preceeded by INDENT space characters."
   (insert
-   (make-string buttercup-junit--indent-level ?\s)
+   (make-string indent ?\s)
    (format "<testsuite name=\"%s\""
            (buttercup-junit--escape-string (buttercup-suite-description suite)))
    (format-time-string " timestamp=\"%Y-%m-%d %T%z\""
@@ -279,13 +277,11 @@ Recursively print any contained suite or spec."
    (format " errors=\"%d\"" (buttercup-junit--errors suite))
    (format " time=\"%f\"" (float-time (buttercup-elapsed-time suite)))
    (format " skipped=\"%d\">\n" (buttercup-suites-total-specs-pending (list suite))))
-  (cl-incf buttercup-junit--indent-level)
   (dolist (child (buttercup-suite-children suite))
     (if (buttercup-spec-p child)
-        (buttercup-junit--testcase child)
-      (buttercup-junit--testsuite child)))
-  (cl-decf buttercup-junit--indent-level)
-  (insert (make-string buttercup-junit--indent-level ?\s)
+        (buttercup-junit--testcase child (1+ indent))
+      (buttercup-junit--testsuite child (1+ indent))))
+  (insert (make-string indent ?\s)
           "</testsuite>\n"))
 
 (defun buttercup-junit--make-outer (description suites)
@@ -316,9 +312,8 @@ and ARG.  A new output buffer is created on the
       (set-buffer-file-coding-system 'utf-8)
       (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
               "<testsuites>\n")
-      (let ((buttercup-junit--indent-level 1))
-        (dolist (suite arg)
-          (buttercup-junit--testsuite suite)))
+      (dolist (suite arg)
+        (buttercup-junit--testsuite suite 1))
       (insert "</testsuites>\n")
       ;; Output XML data
       (when buttercup-junit--to-stdout
