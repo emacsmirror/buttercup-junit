@@ -105,6 +105,7 @@
   (declare (debug t) (indent defun))
   `(let ((buttercup-reporter #'buttercup-junit-reporter)
 		 (buttercup-warning-buffer-name " *Buttercup-Junit-Warnings*")
+         buttercup-junit-inner-reporter
 		 buttercup-junit-result-file
 		 buttercup-junit--buffer
 		 buttercup-junit--to-stdout
@@ -412,6 +413,35 @@ If SKIP is non-nil, include the `skip' attribute."
 	(it "should be fail"
 	  (buttercup-junit-suite test-buttercup-junit-suite3)
       (expect exit-code :to-be-truthy))))
+
+(describe "The buttercup-junit-inner-reporter"
+  (it "should be called for each event"
+    ;; Should be cl-flet, but that does not work on 24.3
+    (flet ((dummy-reporter (event arg) (ignore event arg)))
+      (spy-on 'dummy-reporter)
+      (buttercup-junit--with-local-vars
+        (let ((buttercup-junit-inner-reporter 'dummy-reporter))
+          (buttercup-junit-reporter 'buttercup-started 'foo)
+          (expect 'dummy-reporter
+                  :to-have-been-called-with 'buttercup-started 'foo)
+          (buttercup-junit-reporter 'suite-started 'bar)
+          (expect 'dummy-reporter :to-have-been-called-with 'suite-started 'bar)
+          (buttercup-junit-reporter 'spec-started 'baz)
+          (expect 'dummy-reporter :to-have-been-called-with 'spec-started 'baz)
+          (buttercup-junit-reporter 'spec-done 'qux)
+          (expect 'dummy-reporter :to-have-been-called-with 'spec-done 'qux)
+          (buttercup-junit-reporter 'suite-done 'quux)
+          (expect 'dummy-reporter :to-have-been-called-with 'suite-done 'quux)
+          ;; arg must be nil here for buttercup-junit-reporter to do nothing
+          (buttercup-junit-reporter 'buttercup-done nil)
+          (expect 'dummy-reporter
+                  :to-have-been-called-with 'buttercup-done nil)))))
+    (it "should be ok to set to nil"
+      (buttercup-junit--with-local-vars
+        (expect buttercup-junit-inner-reporter :to-be nil)
+        (dolist (event '(buttercup-started suite-started spec-started
+                                           spec-done suite-done buttercup-done))
+          (buttercup-junit-reporter event nil)))))
 
 (provide 'test-buttercup-junit)
 ;;; test-buttercup-junit.el ends here

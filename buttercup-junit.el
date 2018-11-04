@@ -59,6 +59,11 @@
   :group 'buttercup-junit
   :type 'string)
 
+(defvar buttercup-junit-inner-reporter #'buttercup-reporter-adaptive
+  "Second reporter that will also receive all events.
+Used to also print the normal output to stdout.
+Set to nil to have no output.")
+
 (defvar buttercup-junit--buffer nil
   "Buffer for buttercup-junit result file.")
 
@@ -297,6 +302,8 @@ and ARG.  A new output buffer is created on the
 `buttercup-started' event, and its contents are written to
 `buttercup-junit-result-file' and possibly stdout on the
 `buttercup-done' event."
+  (when buttercup-junit-inner-reporter
+    (funcall buttercup-junit-inner-reporter event arg))
   (when (eq event 'buttercup-done)
     (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
       (setq arg (list (buttercup-junit--make-outer buttercup-junit-master-suite
