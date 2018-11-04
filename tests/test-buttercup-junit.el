@@ -137,10 +137,14 @@ will be set to that string value."
 SUITES should be a list of buttercup `description' forms.  One of
 them may also be a string, if so `buttercup-junit-master-suite'
 will be set to that string value."
+  ;; Uses the buttercup-junit--to-stdout hook to extract xml text
+  ;; through send-string-to-terminal
   (buttercup-junit--with-local-vars
-	(test-buttercup-run suites)
-	(with-current-buffer buttercup-junit--buffer
-	  (xml-to-esxml (buffer-string)))))
+    (let (xmlout (buttercup-junit--to-stdout t))
+      (cl-letf (((symbol-function 'send-string-to-terminal)
+                 (lambda (str) (setq xmlout str))))
+        (test-buttercup-run suites)
+        (xml-to-esxml xmlout)))))
 
 (defvar test-buttercup-junit-suite1 '(describe "suite1"
 									   (it "1.1 should pass"
