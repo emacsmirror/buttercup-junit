@@ -132,19 +132,27 @@ will be set to that string value."
   (buttercup-junit--with-local-vars
 	(test-buttercup-run suites)))
 
+(defmacro buttercup-junit--xml-output (var &rest body)
+  "Store junit xml output in VAR while executing BODY.
+If `buttercup-junit-reporter' is called with `buttercup-done'
+more than once, only the last data will be stored."
+  (declare (indent 1) (debug (symbolp body)))
+  ;; Uses the buttercup-junit--to-stdout hook to extract xml text
+  ;; through send-string-to-terminal
+  `(let (,var (buttercup-junit--to-stdout t))
+     (cl-letf (((symbol-function 'send-string-to-terminal)
+                (lambda (str) (setq ,var str))))
+       ,@body)))
+
 (defun esxml-buttercup-junit-suite (&rest suites)
   "Run buttercup-junit on SUITES, and convert the JUnit XML to esxml.
 SUITES should be a list of buttercup `description' forms.  One of
 them may also be a string, if so `buttercup-junit-master-suite'
 will be set to that string value."
-  ;; Uses the buttercup-junit--to-stdout hook to extract xml text
-  ;; through send-string-to-terminal
   (buttercup-junit--with-local-vars
-    (let (xmlout (buttercup-junit--to-stdout t))
-      (cl-letf (((symbol-function 'send-string-to-terminal)
-                 (lambda (str) (setq xmlout str))))
-        (test-buttercup-run suites)
-        (xml-to-esxml xmlout)))))
+    (buttercup-junit--xml-output xmlout
+      (test-buttercup-run suites)
+      (xml-to-esxml xmlout))))
 
 (defvar test-buttercup-junit-suite1 '(describe "suite1"
 									   (it "1.1 should pass"
