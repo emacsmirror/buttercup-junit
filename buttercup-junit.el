@@ -64,9 +64,6 @@
 Used to also print the normal output to stdout.
 Set to nil to have no output.")
 
-(defvar buttercup-junit--buffer nil
-  "Buffer for buttercup-junit result file.")
-
 (defvar buttercup-junit--to-stdout nil
   "Whether to print the xml file to stdout as well.")
 
@@ -308,9 +305,7 @@ and ARG.  A new output buffer is created on the
     (when (buttercup-junit--nonempty-string-p buttercup-junit-master-suite)
       (setq arg (list (buttercup-junit--make-outer buttercup-junit-master-suite
                                                    arg))))
-    (setq buttercup-junit--buffer
-          (generate-new-buffer (generate-new-buffer-name "*junit*")))
-    (with-current-buffer buttercup-junit--buffer
+    (with-temp-buffer
       (set-buffer-file-coding-system 'utf-8)
       (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
               "<testsuites>\n")

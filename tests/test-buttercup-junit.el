@@ -107,7 +107,6 @@
 		 (buttercup-warning-buffer-name " *Buttercup-Junit-Warnings*")
          buttercup-junit-inner-reporter
 		 buttercup-junit-result-file
-		 buttercup-junit--buffer
 		 buttercup-junit--to-stdout
 		 buttercup-junit-master-suite)
 	 ,@body))
