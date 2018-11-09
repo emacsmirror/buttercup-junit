@@ -8,7 +8,7 @@
 ;; Keywords: tools test unittest buttercup ci
 ;; Version: 1.0.1
 ;; Package-Requires: ((emacs "24.3") (buttercup "1.15"))
-;; URL: http://bitbucket.org/olanilsson/buttercup-junit
+;; URL: https://bitbucket.org/olanilsson/buttercup-junit
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
