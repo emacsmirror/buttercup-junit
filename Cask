@@ -9,4 +9,5 @@
 
 (development
  (depends-on "buttercup")
- (depends-on "esxml"))
+ (depends-on "esxml")
+ (depends-on "package-lint"))
