@@ -2,11 +2,12 @@
 
 [![CircleCI](https://circleci.com/bb/olanilsson/buttercup-junit/tree/master.svg?style=shield&circle-token=0114ae411116984dae168da481f600ef300e78e4)](https://circleci.com/bb/olanilsson/buttercup-junit/tree/master) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-buttercup-junit publishes buttercup test results as [JUnit][JUNIT] XML files.
+buttercup-junit publishes [buttercup][BUTTERCUP] test results as
+[JUnit][JUNIT] XML files.
 
 [Buttercup][BUTTERCUP] recommends running tests in batch mode
 from the command line.  The results are printed on stdout.  buttercup-junit
-does the same, but writes the test results to a [JUnit][JUNIT]
+does the same, but also writes the test results to a [JUnit][JUNIT]
 compatible [XML-file][JUNITXSD].
 
 buttercup-junit was originally conceived to facilitate [CI][CI] testing on
@@ -45,7 +46,14 @@ buttercup-junit-run-discover will consume the following flags from
  * `--junit-stdout` - Write the report both to file and stdout.
  * `--outer-suite SUITE` - Add an outer testsuite SUITE to the report.
 
-# More indformation about the JUnit format
+# More information about the JUnit format
 
+These are the best resources on the [JUnit XML format][JUNITXSD] that I've found,
+but they are still not definitive as each service chooses how to
+interpret and display the data.  If you find that the test results are
+not interpreted as expected on some service, please raise an
+[issue][https://bitbucket.org/olanilsson/buttercup-junit/issues].
+
+ * http://windyroad.com.au/dl/Open%20Source/JUnit.xsd
  * http://help.catchsoftware.com/display/ET/JUnit+Format
  * http://llg.cubic.org/docs/junit/

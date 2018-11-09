@@ -6,7 +6,7 @@
 ;; Maintainer: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Created: Oct 2, 2016
 ;; Keywords: tools test unittest buttercup ci
-;; Version: 1.0.0
+;; Version: 1.0.1
 ;; Package-Requires: ((emacs "24.3") (buttercup "1.15"))
 ;; URL: http://bitbucket.org/olanilsson/buttercup-junit
 
@@ -25,7 +25,8 @@
 
 ;;; Commentary:
 
-;; Print buttercup test results to JUnit XML report files.
+;; Print buttercup test results to JUnit XML report files, while also
+;; producing normal buttercup output on stdout.
 ;;
 ;; `emacs -batch -L . -f package-initialize -f buttercup-junit-run-discover [buttercup-options]'
 ;;
@@ -34,7 +35,8 @@
 ;;
 ;;  --xmlfile FILE    Write JUnit report to FILE
 ;;  --junit-stdout    Write JUnit report to stdout.
-;;                    The report file will also be written.
+;;                    The report file will also be written to stdout,
+;;                    after the normal buttercup report.
 ;;  --outer-suite     Add a wrapping testsuite around the outer suites.
 ;;
 ;; buttercup tests are grouped into descriptions, and descriptions can
