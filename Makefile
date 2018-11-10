@@ -26,7 +26,11 @@ cask-install:
 check test: cask-install
 	$(CASK) emacs $(TESTOPTS) -f buttercup-run-discover $(BUTTERCUP_FLAGS) tests
 
-lint: package-lint
+lint: elisp-lint package-lint
+
+elisp-lint: cask-install
+	$(CASK) emacs -Q --batch -l elisp-lint.el -f elisp-lint-files-batch \
+	 --no-indent --no-indent-character --no-fill-column buttercup-junit.el
 
 package-lint: cask-install
 	$(CASK) emacs -Q --batch -l package-lint.el \

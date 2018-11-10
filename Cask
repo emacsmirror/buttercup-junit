@@ -9,5 +9,6 @@
 
 (development
  (depends-on "buttercup")
+ (depends-on "elisp-lint")
  (depends-on "esxml")
  (depends-on "package-lint"))

@@ -2,3 +2,4 @@
 /.cask/
 *~
 /buttercup-junit.xml
+/buttercup-junit-autoloads.el
