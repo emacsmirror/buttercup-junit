@@ -38,6 +38,7 @@ teststeps: &teststeps
         name: test
         command: |
           make build
+          make lint -k
           outer=$($EMACS --version | head -1 | tr ' ' '_')
           make report OUTER="$outer" JUNIT=~/proj/test_results/tests.xml
     - store_test_results:
