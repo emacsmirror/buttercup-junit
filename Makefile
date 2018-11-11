@@ -3,7 +3,7 @@
 export PATH:=$(PATH):$(HOME)/.cask/bin
 
 CWD := $(shell pwd)
-CASK = cask.sh
+CASK ?= cask.sh
 EMACS ?= emacs
 ifeq ($(EMACS),t)
 EMACS = emacs
