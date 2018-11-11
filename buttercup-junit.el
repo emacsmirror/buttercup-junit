@@ -102,7 +102,7 @@ as the last item in `command-line-args-left'."
   (prog1 (member option command-line-args-left)
 	(setq command-line-args-left (remove option command-line-args-left))))
 
-(defmacro with-buttercup-junit-reporter (&rest body)
+(defmacro buttercup-junit--with-reporter (&rest body)
   "Execute BODY with necessary variables bound.
 This macro is used to wrap calls to buttercup with relevant
 variables set."
@@ -131,7 +131,7 @@ testsuite of that name will be added."
 	(when outer
 	  (setq command-line-args-left (append command-line-args-left
 										   (list "--outer-suite" outer))))
-    (with-buttercup-junit-reporter
+    (buttercup-junit--with-reporter
       (buttercup-run-at-point))))
 
 ;;;###autoload
@@ -144,7 +144,7 @@ The JUnit report will be written to the file specified by
 name will be added.  These variables can be overriden by the
 options `--xmlfile XMLFILE', `--junit-stdout', and `--outer-suite
 SUITE' in `commandline-args-left'."
-  (with-buttercup-junit-reporter
+  (buttercup-junit--with-reporter
     (buttercup-run-discover)))
 
 ;;;###autoload
@@ -159,27 +159,27 @@ name will be added.  These variables can be overriden by the
 options `--xmlfile XMLFILE', `--junit-stdout', and `--outer-suite
 SUITE' in `commandline-args-left'."
   (interactive)
-  (with-buttercup-junit-reporter
+  (buttercup-junit--with-reporter
     (apply #'buttercup-run-markdown-buffer markdown-buffers)))
 
 ;;;###autoload
 (defun buttercup-junit-run-markdown ()
   "Execute `buttercyp-run-markdown' with `buttercup-junit-reporter'."
-  (with-buttercup-junit-reporter
+  (buttercup-junit--with-reporter
     (buttercup-run-markdown)))
 
 ;;;###autoload
 (defun buttercup-junit-run-markdown-file (file)
   "Pass FILE to `buttercup-run-markdown-file' using `buttercup-junit-reporter'."
   (interactive "fMarkdown file: ")
-  (with-buttercup-junit-reporter
+  (buttercup-junit--with-reporter
     (buttercup-run-markdown-file file)))
 
 ;;;###autoload
 (defun buttercup-junit-run ()
   "Execute `buttercup-run' with `buttercup-junit-reporter'."
   (interactive)
-  (with-buttercup-junit-reporter
+  (buttercup-junit--with-reporter
     (buttercup-run)))
 
 (defsubst buttercup-junit--insert-at (marker &rest insert-args)
