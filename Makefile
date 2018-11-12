@@ -9,7 +9,7 @@ ifeq ($(EMACS),t)
 EMACS = emacs
 endif
 
-TESTOPTS = -L . -L tests -batch -l buttercup-junit -f package-initialize
+TESTOPTS = -L . -L tests -batch -l buttercup-junit
 
 JUNIT ?= buttercup-junit.xml
 
