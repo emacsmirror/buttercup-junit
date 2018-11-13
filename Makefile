@@ -17,6 +17,8 @@ BUTTERCUP_FLAGS += $(if $(BUTTERCUP_NO_COLOR),--no-color)
 
 PACKAGE_USER_DIR := $(shell $(CASK) package-directory)
 
+EMACSVER := $(shell $(EMACS) --batch --eval '(message emacs-version)')
+
 build: cask-install
 	$(CASK) build
 
@@ -30,6 +32,7 @@ lint: elisp-lint package-lint
 
 elisp-lint: cask-install
 	$(CASK) emacs -Q --batch -l elisp-lint.el -f elisp-lint-files-batch \
+	 $(if $(filter-out 24.3%,$(EMACSVER)),,--no-byte-compile) \
 	 --no-indent --no-indent-character --no-fill-column buttercup-junit.el
 
 package-lint: cask-install
