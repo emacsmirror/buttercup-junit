@@ -41,6 +41,14 @@ Pull requests welcome.
 
 https://bitbucket.org/olanilsson/buttercup-junit/issues
 
+# Installation
+
+Use `package.el` to install from [MELPA][MELPA] or [MELPA
+Stable][MELPASTABLE].
+
+[MELPA]: https://melpa.org "MELPA"
+[MELPASTABLE]: https://stable.melpa.org "MELPA Stable"
+
 # Documentation
 
 ## buttercup-junit-run-discover ()
