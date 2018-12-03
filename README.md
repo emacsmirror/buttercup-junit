@@ -20,13 +20,15 @@ from the command line.  The results are printed on stdout.  buttercup-junit
 does the same, but also writes the test results to a [JUnit][JUNIT]
 compatible [XML-file][JUNITXSD].
 
-buttercup-junit was originally conceived to facilitate [CI][CI] testing on
-http://shippable.com and http://circleci.com.
+buttercup-junit was originally conceived to facilitate [CI][CI]
+testing on [Shippable][SHIPPABLE] and [CircleCI][CIRCLECI].
 
+[SHIPPABLE]: https://shippable.com "Shippable"
+[CIRCLECI]: https://circleci.com "CircleCI"
 [BUTTERCUP]: https://github.com/jorgenschaefer/emacs-buttercup "Emacs Buttercup"
-[JUNIT]: http://junit.org "JUnit Home"
-[JUNITXSD]: http://windyroad.com.au/dl/Open%20Source/JUnit.xsd "JUnit xsd"
-[CI]: http://en.wikipedia.org/wiki/Continuous_integration "Continous Integration on Wikipedia"
+[JUNIT]: https://junit.org "JUnit Home"
+[JUNITXSD]: https://windyroad.com.au/dl/Open%20Source/JUnit.xsd "JUnit xsd"
+[CI]: https://en.wikipedia.org/wiki/Continuous_integration "Continous Integration on Wikipedia"
 
 ## git repo
 
@@ -35,11 +37,13 @@ https://bitbucket.org/olanilsson/buttercup-junit
 
 Pull requests welcome.
 
-[BITBUCKET]: http://bitbucket.org "BitBucket"
+[BITBUCKET]: https://bitbucket.org "BitBucket"
 
 ## Issue tracker
 
-https://bitbucket.org/olanilsson/buttercup-junit/issues
+[https://bitbucket.org/olanilsson/buttercup-junit/issues][ISSUES]
+
+[ISSUES]: https://bitbucket.org/olanilsson/buttercup-junit/issues "Buttercup JUnit Issues"
 
 # Installation
 
@@ -70,8 +74,8 @@ These are the best resources on the [JUnit XML format][JUNITXSD] that I've found
 but they are still not definitive as each service chooses how to
 interpret and display the data.  If you find that the test results are
 not interpreted as expected on some service, please raise an
-[issue][https://bitbucket.org/olanilsson/buttercup-junit/issues].
+[issue][ISSUES].
 
- * http://windyroad.com.au/dl/Open%20Source/JUnit.xsd
+ * https://windyroad.com.au/dl/Open%20Source/JUnit.xsd
  * http://help.catchsoftware.com/display/ET/JUnit+Format
  * http://llg.cubic.org/docs/junit/
