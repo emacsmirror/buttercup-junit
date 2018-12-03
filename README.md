@@ -1,6 +1,9 @@
 # buttercup-junit - JUnit XML reports from buttercup results
 
-[![CircleCI](https://circleci.com/bb/olanilsson/buttercup-junit/tree/master.svg?style=shield&circle-token=0114ae411116984dae168da481f600ef300e78e4)](https://circleci.com/bb/olanilsson/buttercup-junit/tree/master) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![CircleCI](https://circleci.com/bb/olanilsson/buttercup-junit/tree/master.svg?style=shield&circle-token=0114ae411116984dae168da481f600ef300e78e4)](https://circleci.com/bb/olanilsson/buttercup-junit/tree/master)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![MELPA](https://melpa.org/packages/buttercup-junit-badge.svg)](https://melpa.org/#/buttercup-junit)
+[![MELPA Stable](https://stable.melpa.org/packages/buttercup-junit-badge.svg)](https://stable.melpa.org/#/buttercup-junit)
 
 buttercup-junit publishes [buttercup][BUTTERCUP] test results as
 [JUnit][JUNIT] XML files.
