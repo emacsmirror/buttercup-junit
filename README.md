@@ -5,6 +5,8 @@
 [![MELPA](https://melpa.org/packages/buttercup-junit-badge.svg)](https://melpa.org/#/buttercup-junit)
 [![MELPA Stable](https://stable.melpa.org/packages/buttercup-junit-badge.svg)](https://stable.melpa.org/#/buttercup-junit)
 
+![emacs 26.3](https://img.shields.io/badge/emacs-26.3-brightgreen.svg)
+![emacs 26.2](https://img.shields.io/badge/emacs-26.2-brightgreen.svg)
 ![emacs 26.1](https://img.shields.io/badge/emacs-26.1-brightgreen.svg)
 ![emacs 25.3](https://img.shields.io/badge/emacs-25.3-brightgreen.svg)
 ![emacs 25.2](https://img.shields.io/badge/emacs-25.2-brightgreen.svg)
