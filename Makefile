@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2018 by Ola Nilsson <ola.nilsson@gmail.com>
+# Copyright (C) 2016-2019 by Ola Nilsson <ola.nilsson@gmail.com>
 
 export PATH:=$(PATH):$(HOME)/.cask/bin
 
@@ -9,6 +9,12 @@ ifeq ($(EMACS),t)
 EMACS = emacs
 endif
 
+BATCHOPTS = --batch -q -l .emacs/lisp/init.el
+EMACS_BATCH = $(EMACS) $(BATCHOPTS)
+EMACS_PACKAGING = $(EMACS) --batch -q -l .emacs/lisp/packaging.el
+TESTFILEFLAGS =
+EMACS_TEST = $(EMACS) $(BATCHOPTS) $(TESTFILEFLAGS)
+
 TESTOPTS = -L . -L tests -batch -l buttercup-junit
 
 JUNIT ?= buttercup-junit.xml
@@ -18,6 +24,11 @@ BUTTERCUP_FLAGS += $(if $(BUTTERCUP_NO_COLOR),--no-color)
 PACKAGE_USER_DIR := $(shell $(CASK) package-directory)
 
 EMACSVER := $(shell $(EMACS) --batch --eval '(message emacs-version)')
+
+all: build
+
+setup:
+	$(EMACS_BATCH)
 
 build: cask-install
 	$(CASK) build
