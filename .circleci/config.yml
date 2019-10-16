@@ -8,6 +8,9 @@ teststeps: &teststeps
     - CASKURL: https://raw.githubusercontent.com/snogge/cask/master/go.sh
   steps:
     - checkout
+    - run:
+        name: .emacs setup
+        command: make setup
     - run: |
         mkdir -p ~/proj/test_results
         $EMACS --version > ~/proj/test_results/.emacsversion
