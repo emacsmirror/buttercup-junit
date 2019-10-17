@@ -8,8 +8,8 @@
 
 ;;; Code:
 
-(declare-function lm-get-package-name "lisp-mnt" () t)
-(declare-function lm-header "lisp-mnt" (header) t)
+(autoload 'lm-get-package-name "lisp-mnt" "Return package name by looking at the first line.")
+(autoload 'lm-header "lisp-mnt" "Return the contents of the header named HEADER.")
 
 (defun package-version ()
   "Return the version listed in the current buffer.
@@ -25,7 +25,6 @@ error if neither is found."
 
 (defun package-archive-name ()
   "Return the name of the package.el multifile archive specified by the current file."
-  (require 'lisp-mnt)
   (let ((name (format "%s-%s.tar"
                       (package-basename)
                       (package-version))))
