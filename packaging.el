@@ -23,14 +23,25 @@ error if neither is found."
   "Return the package basename of the current buffer."
   (file-name-sans-extension (lm-get-package-name)))
 
-(defun package-archive-name ()
-  "Return the name of the package.el multifile archive specified by the current file."
-  (let ((name (format "%s-%s.tar"
+(defsubst package--name-impl (suffix)
+  "Common implementation of `package-file-name' and `package-archive-name'.
+SUFFIX - which should not include a leading `.' - is the file
+suffix of the returned file name."
+  (let ((name (format "%s-%s.%s"
                       (package-basename)
-                      (package-version))))
+                      (package-version)
+                      suffix)))
     (when noninteractive
       (princ (format "%s\n" name)))
     name))
+
+(defun package-file-name ()
+  "Return the name of the package.el singlefile package specified by the current file."
+  (package--name-impl "el"))
+
+(defun package-archive-name ()
+  "Return the name of the package.el multifile archive specified by the current file."
+  (package--name-impl "tar"))
 
 (defun generate-description-file ()
   "Generate a foo-pkg.el file for the current buffer."
