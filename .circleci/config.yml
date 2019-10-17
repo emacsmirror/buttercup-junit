@@ -1,48 +1,19 @@
 ---
 teststeps: &teststeps
   working_directory: ~/proj
-  environment:
-    - EMACS: emacs
-    - CASK_EMACS: emacs
-    - CASK: /root/.cask/bin/cask.sh
-    - CASKURL: https://raw.githubusercontent.com/snogge/cask/master/go.sh
   steps:
     - checkout
     - run:
-        name: .emacs setup
-        command: make setup
-    - run: |
-        mkdir -p ~/proj/test_results
-        $EMACS --version > ~/proj/test_results/.emacsversion
+        name: Build
+        command: make build
     - run:
-        name: Install cask
+        name: Test
         command: |
-          if [ -f $CASK ] ; then
-            echo $CASK upgrade
-            $CASK upgrade
-          else
-            rm -rf ~/.cask
-            echo curl -fsSL $CASKURL
-            curl -fsSL $CASKURL | /bin/sh
-          fi
-          rm -rf /root/.emacs.d/.cask/*/elpa/archives
-    - run:
-        name: Install Dependencies
-        command: |
-          if [ -d $($CASK package-directory) ] ; then
-            echo $CASK update
-            $CASK update
-          else
-            echo $CASK install
-            $CASK install
-          fi
-          rm -rf ~/proj/.cask/*/elpa/archives
-    - run:
-        name: test
-        command: |
+          mkdir -p ~/proj/test_results
+          emacs --version > ~/proj/test_results/.emacsversion
           make build
           make lint -k
-          outer=$($EMACS --version | head -1 | tr ' ' '_')
+          outer=$(emacs --version | head -1 | tr ' ' '_')
           make report OUTER="$outer" JUNIT=~/proj/test_results/tests.xml
     - store_test_results:
         path: ~/proj/test_results
@@ -94,9 +65,6 @@ jobs:
   deploy:
     docker:
       - image: olanilsson/emacs:26.3-alpine-ci
-    environment:
-      - EMACS: emacs
-      - CASK_EMACS: emacs
     steps:
       - checkout
       - run:
