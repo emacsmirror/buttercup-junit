@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; 
+;;
 
 ;;; Code:
 
@@ -45,7 +45,7 @@ in the same order."
 				   (string-match (cdr p) (cdr a)))
 			  (cl-return (cons nil (format "%s=\"%s\" should match %s=\"%s\""
 										   (car a) (cdr a) (car p) (cdr p))))))))))
-		
+
 (defun esxml-tag-match (tag pattern)
   "Match a esxml element TAG against PATTERN."
   (cond ((> 2 (length tag)) (error "%s is malformed for an esxml object" tag))
@@ -108,5 +108,6 @@ in the same order."
 ;;; utils-test-buttercup-junit.el ends here
 ;; Local Variables:
 ;; byte-compile-warnings: (not cl-functions)
+;; no-byte-compile: t
 ;; tab-width: 4
 ;; End:
