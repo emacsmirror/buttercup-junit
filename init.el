@@ -69,7 +69,8 @@
     (package-refresh-contents))
   ;; update the keyring
   (when (fboundp 'package-import-keyring)
-    (package-install 'gnu-elpa-keyring-update)))
+    (unless (package-installed-p 'gnu-elpa-keyring-update)
+      (package-install 'gnu-elpa-keyring-update))))
 
 ;; For some reason - in some cases - a call to sit-for it required
 ;; between package-refresh-contents and the first package-install.
