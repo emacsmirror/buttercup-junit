@@ -1,9 +1,5 @@
 # Copyright (C) 2016-2019 by Ola Nilsson <ola.nilsson@gmail.com>
 
-export PATH:=$(PATH):$(HOME)/.cask/bin
-
-CWD := $(shell pwd)
-CASK ?= cask.sh
 EMACS ?= emacs
 ifeq ($(EMACS),t)
 EMACS = emacs
