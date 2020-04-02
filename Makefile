@@ -39,9 +39,13 @@ check test:
 lint: elisp-lint package-lint
 
 elisp-lint:
+ifeq ($(filter-out 24.3%,$(EMACSVER)),)
+	@echo elisp-lint not supported on Emacs $(EMACSVER)
+else
 	$(EMACS_BATCH) -l elisp-lint.el -f elisp-lint-files-batch \
-	 $(if $(filter-out 24.3%,$(EMACSVER)),,--no-byte-compile) \
+	 --no-byte-compile \
 	 --no-indent --no-indent-character --no-fill-column buttercup-junit.el
+endif
 
 package-lint:
 	$(EMACS_BATCH) -l package-lint.el -f package-lint-batch-and-exit buttercup-junit.el

@@ -25,7 +25,7 @@
 ;;; Code:
 
 (package-install-maybe 'buttercup)
-(package-install-maybe 'elisp-lint)
+(package-install-maybe 'elisp-lint :min-emacs-version "24.4")
 (package-install-maybe 'esxml)
 (package-install-maybe 'package-lint)
 
