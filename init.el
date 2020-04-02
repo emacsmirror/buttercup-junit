@@ -81,10 +81,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Functions to install dependencies
 
-(defun package-install-maybe (pkg &optional min-version)
-  "Install PKG, optionally with MIN-VERSION."
-  (unless (package-installed-p pkg min-version)
-    (package-install pkg)))
+(require 'cl-lib)
+
+(cl-defun package-install-maybe (pkg
+                                 &key min-version
+                                 (min-emacs-version "1"))
+  "Install PKG, optionally with MIN-VERSION.
+MIN-EMACS-VERSION can be set to a version string.  The package
+will not be installed unless the current Emacs instance is at
+least that version."
+  (if (and (version<= min-emacs-version emacs-version)
+           (not (package-installed-p pkg min-version)))
+      (package-install pkg)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Load project dependencies from elsewhere
