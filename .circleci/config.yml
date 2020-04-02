@@ -26,6 +26,10 @@ jobs:
     docker:
       - image: olanilsson/emacs:master-alpine-ci
     <<: *teststeps
+  emacs_27.1:
+    docker:
+      - image: olanilsson/emacs:27-alpine-ci
+    <<: *teststeps
   emacs_26.3:
     docker:
       - image: olanilsson/emacs:26.3-alpine-ci
@@ -80,6 +84,7 @@ workflows:
   build_and_test:
     jobs:
       - emacs_master
+      - emacs_27.1
       - emacs_26.3
       - emacs_26.2
       - emacs_26.1
@@ -92,6 +97,7 @@ workflows:
       - deploy:
           requires:
             - emacs_master
+            - emacs_27.1
             - emacs_26.3
             - emacs_26.2
             - emacs_26.1
@@ -112,6 +118,7 @@ workflows:
                 - master
     jobs:
       - emacs_master
+      - emacs_27.1
       - emacs_26.3
       - emacs_26.2
       - emacs_26.1
