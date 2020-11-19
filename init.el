@@ -72,7 +72,7 @@
     (unless (package-installed-p 'gnu-elpa-keyring-update)
       (package-install 'gnu-elpa-keyring-update))))
 
-;; For some reason - in some cases - a call to sit-for it required
+;; For some reason - in some cases - a call to sit-for is required
 ;; between package-refresh-contents and the first package-install.
 ;; The actual sleep time can be _very_ short, so it's probably a case
 ;; of clearing out timers or callbacks before continuing.
