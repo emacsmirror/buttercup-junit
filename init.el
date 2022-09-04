@@ -19,6 +19,7 @@
 
 (setq user-init-file (or load-file-name (buffer-file-name)))
 (setq user-emacs-directory (expand-file-name "../" (file-name-directory user-init-file)))
+(setq package-user-dir (locate-user-emacs-file "elpa"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Make sure customize data doesn't land in this file
