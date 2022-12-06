@@ -4,6 +4,11 @@ teststeps: &teststeps
   steps:
     - checkout
     - run:
+        name: Install programs
+        # Busybox tar wont cut it
+        command: |+
+          apk add --no-cache tar || true
+    - run:
         name: Build
         command: make build
     - run:
@@ -24,51 +29,35 @@ version: 2
 jobs:
   emacs_master:
     docker:
-      - image: olanilsson/emacs:master-alpine-ci
+      - image: silex/emacs:master-alpine-ci
     <<: *teststeps
-  emacs_27.1:
+  emacs_28.2:
     docker:
-      - image: olanilsson/emacs:27-alpine-ci
+      - image: silex/emacs:28.2-alpine-ci
+    <<: *teststeps
+  emacs_28.1:
+    docker:
+      - image: silex/emacs:28.1-alpine-ci
+    <<: *teststeps
+  emacs_27.2:
+    docker:
+      - image: silex/emacs:27.2-alpine-ci
     <<: *teststeps
   emacs_26.3:
     docker:
-      - image: olanilsson/emacs:26.3-alpine-ci
-    <<: *teststeps
-  emacs_26.2:
-    docker:
-      - image: olanilsson/emacs:26.2-alpine-ci
-    <<: *teststeps
-  emacs_26.1:
-    docker:
-      - image: olanilsson/emacs:26.1-alpine-ci
+      - image: silex/emacs:26.3-alpine-ci
     <<: *teststeps
   emacs_25.3:
     docker:
-      - image: olanilsson/emacs:25.3-alpine-ci
-    <<: *teststeps
-  emacs_25.2:
-    docker:
-      - image: olanilsson/emacs:25.2-alpine-ci
-    <<: *teststeps
-  emacs_25.1:
-    docker:
-      - image: olanilsson/emacs:25.1-ci
+      - image: silex/emacs:25.3-alpine-ci
     <<: *teststeps
   emacs_24.5:
     docker:
-      - image: olanilsson/emacs:24.5-ci
-    <<: *teststeps
-  emacs_24.4:
-    docker:
-      - image: olanilsson/emacs:24.4-ci
-    <<: *teststeps
-  emacs_24.3:
-    docker:
-      - image: olanilsson/emacs:24.3-ci
+      - image: silex/emacs:24.5-ci
     <<: *teststeps
   deploy:
     docker:
-      - image: olanilsson/emacs:26.3-alpine-ci
+      - image: silex/emacs:28.2-ci
     steps:
       - checkout
       - run:
@@ -84,29 +73,21 @@ workflows:
   build_and_test:
     jobs:
       - emacs_master
-      - emacs_27.1
+      - emacs_28.2
+      - emacs_28.1
+      - emacs_27.2
       - emacs_26.3
-      - emacs_26.2
-      - emacs_26.1
       - emacs_25.3
-      - emacs_25.2
-      - emacs_25.1
       - emacs_24.5
-      - emacs_24.4
-      - emacs_24.3
       - deploy:
           requires:
             - emacs_master
-            - emacs_27.1
+            - emacs_28.2
+            - emacs_28.1
+            - emacs_27.2
             - emacs_26.3
-            - emacs_26.2
-            - emacs_26.1
             - emacs_25.3
-            - emacs_25.2
-            - emacs_25.1
             - emacs_24.5
-            - emacs_24.4
-            - emacs_24.3
   weekly:
     triggers:
       - schedule:
@@ -118,13 +99,9 @@ workflows:
                 - master
     jobs:
       - emacs_master
-      - emacs_27.1
+      - emacs_28.2
+      - emacs_28.1
+      - emacs_27.2
       - emacs_26.3
-      - emacs_26.2
-      - emacs_26.1
       - emacs_25.3
-      - emacs_25.2
-      - emacs_25.1
       - emacs_24.5
-      - emacs_24.4
-      - emacs_24.3
