@@ -199,13 +199,15 @@ will be set to that string value."
 
 (describe "JUnit XML output"
   :var ((timestamp (cons 'timestamp test-buttercup-junit-timestamp-re))
-		(time (cons 'time "[0-9]+\\.[0-9]+")))
+		(time (cons 'time "[0-9]+\\.[0-9]+"))
+        (actual-signal (symbol-function #'signal)))
   (before-each
-    (spy-on 'error :and-call-fake
-            (lambda (string &rest args)
-              (unless (and (string= "" string)
-                           (null args))
-                (signal 'error (list (apply #'format-message args)))))))
+    (spy-on 'signal :and-call-fake
+            (lambda (error-symbol data)
+              (unless (memq error-symbol '(buttercup-run-specs-failed
+                                           buttercup-failed
+                                           buttercup-pending))
+                (funcall actual-signal error-symbol data)))))
   (it "should handle success, failure and pending"
 	(expect (esxml-buttercup-junit-suite test-buttercup-junit-suite1) :to-esxml-match
             (testsuites
@@ -331,15 +333,18 @@ will be set to that string value."
                           (testcase "spec" :time "0.250000"))))))))))
 
 (describe "Return value"
-  :var (exit-code)
+  :var (exit-code
+        (actual-signal (symbol-function #'signal)))
+
   (before-each
     (setq exit-code nil)
-    (spy-on 'error :and-call-fake
-            (lambda (&rest args)
-              (if (and (string= "" (car args))
-                       (null (cdr args)))
-                  (setq exit-code t)
-                (signal 'error (list (apply #'format-message args)))))))
+    (spy-on 'signal :and-call-fake
+            (lambda (error-symbol data)
+              (case error-symbol
+                (buttercup-failed (ignore)) ; A failing testcase
+                ;; A failing test run
+                (buttercup-run-specs-failed (setq exit-code t))
+                (t (funcall actual-signal error-symbol data))))))
   (describe "when all tests pass"
 	(it "should be ok"
 	  (buttercup-junit-suite test-buttercup-junit-suite2)
