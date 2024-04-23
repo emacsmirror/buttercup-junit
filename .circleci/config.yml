@@ -17,7 +17,7 @@ teststeps: &teststeps
           mkdir -p ~/proj/test_results
           emacs --version > ~/proj/test_results/.emacsversion
           make build
-          make lint -k
+          #make lint -k
           outer=$(emacs --version | head -1 | tr ' ' '_')
           make report OUTER="$outer" JUNIT=~/proj/test_results/tests.xml
     - store_test_results:

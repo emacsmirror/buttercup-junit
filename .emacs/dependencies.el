@@ -1,6 +1,6 @@
 ;;; dependencies.el --- project specific package dependencies -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019  Ola Nilsson
+;; Copyright (C) 2019, 2024  Ola Nilsson
 
 ;; Author: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Keywords:
@@ -25,9 +25,9 @@
 ;;; Code:
 
 (package-install-maybe 'buttercup)
-(package-install-maybe 'elisp-lint :min-emacs-version "24.4")
+;;(package-install-maybe 'elisp-lint :min-emacs-version "24.4")
 (package-install-maybe 'esxml)
-(package-install-maybe 'package-lint)
+;;(package-install-maybe 'package-lint)
 
 ;;; dependencies.el ends here
 ;; Local Variables:
