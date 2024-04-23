@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2019 by Ola Nilsson <ola.nilsson@gmail.com>
+# Copyright (C) 2016-2019, 2024 by Ola Nilsson <ola.nilsson@gmail.com>
 
 EMACS ?= emacs
 ifeq ($(EMACS),t)
@@ -21,7 +21,7 @@ setup:
 	$(EMACS_BATCH)
 
 build:
-	$(EMACS_BATCH) --eval '(byte-recompile-directory "'$(PWD)'" 0)'
+	$(EMACS_BATCH) -L tests -L tests/test-support --eval '(byte-recompile-directory "'$(PWD)'" 0)'
 
 report: $(JUNIT)
 
