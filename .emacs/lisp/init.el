@@ -1,7 +1,7 @@
 ;;; init.el --- Emacs initialization for isolated package testing
 
 ;; Copyright (C) 2018 Neil Okamoto  https://github.com/gonewest818
-;; Copyright (C) 2019 Ola Nilsson  <ola.nilsson@gmail.com>
+;; Copyright (C) 2019, 2024 Ola Nilsson  <ola.nilsson@gmail.com>
 
 ;; Copied from https://github.com/gonewest818/elisp-lint where it had
 ;; no license.  elisp-lint.el is GPLv3 so I assume this is the same
@@ -71,7 +71,8 @@
   ;; update the keyring
   (when (fboundp 'package-import-keyring)
     (unless (package-installed-p 'gnu-elpa-keyring-update)
-      (package-install 'gnu-elpa-keyring-update))))
+      (let (package-check-signature)
+        (package-install 'gnu-elpa-keyring-update)))))
 
 ;; For some reason - in some cases - a call to sit-for is required
 ;; between package-refresh-contents and the first package-install.
