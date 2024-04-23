@@ -13,7 +13,7 @@ EMACS_TEST = $(EMACS) $(BATCHOPTS) $(TESTFILEFLAGS)
 
 JUNIT ?= buttercup-junit.xml
 BUTTERCUP_FLAGS += $(if $(BUTTERCUP_NO_COLOR),--no-color)
-EMACSVER := $(shell $(EMACS) --batch --eval '(message emacs-version)')
+EMACSVER := $(shell $(EMACS) --batch --eval '(message emacs-version)' 2>&1)
 
 all: build
 
@@ -39,13 +39,9 @@ check test:
 lint: elisp-lint package-lint
 
 elisp-lint:
-ifeq ($(filter-out 24.3%,$(EMACSVER)),)
-	@echo elisp-lint not supported on Emacs $(EMACSVER)
-else
 	$(EMACS_BATCH) -l elisp-lint.el -f elisp-lint-files-batch \
 	 --no-byte-compile \
 	 --no-indent --no-indent-character --no-fill-column buttercup-junit.el
-endif
 
 package-lint:
 	$(EMACS_BATCH) -l package-lint.el -f package-lint-batch-and-exit buttercup-junit.el
