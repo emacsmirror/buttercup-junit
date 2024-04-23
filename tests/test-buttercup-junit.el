@@ -123,7 +123,7 @@ will be set to that string value."
 			 (if buttercup-junit-master-suite
 				 (warn "buttercup-junit-master-suite already set")
 			   (setq buttercup-junit-master-suite suite)))
-			(t (eval suite))))
+			(t (eval suite t))))
 	(buttercup-run)))
 
 (defun buttercup-junit-suite (&rest suites)
