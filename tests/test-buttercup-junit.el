@@ -1,6 +1,6 @@
 ;;; test-buttercup-junit.el --- Tests for buttercup-junit.el -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2016-2018  Ola Nilsson
+;; Copyright (C) 2016-2018, 2024  Ola Nilsson
 
 ;; Author: Ola Nilsson <ola.nilsson@gmail.com>
 ;; Keywords:
@@ -27,7 +27,6 @@
 (require 'cl-lib)
 (require 'buttercup)
 (require 'buttercup-junit)
-(require 'cl) ; required by esxml
 (require 'esxml)
 (require 'utils-test-buttercup-junit)
 (load "test-support/test-support")
@@ -340,7 +339,7 @@ will be set to that string value."
     (setq exit-code nil)
     (spy-on 'signal :and-call-fake
             (lambda (error-symbol data)
-              (case error-symbol
+              (cl-case error-symbol
                 (buttercup-failed (ignore)) ; A failing testcase
                 ;; A failing test run
                 (buttercup-run-specs-failed (setq exit-code t))
@@ -360,8 +359,7 @@ will be set to that string value."
 
 (describe "The buttercup-junit-inner-reporter"
   (it "should be called for each event"
-    ;; Should be cl-flet, but that does not work on 24.3
-    (flet ((dummy-reporter (event arg) (ignore event arg)))
+    (cl-flet ((dummy-reporter (event arg) (ignore event arg)))
       (spy-on 'dummy-reporter)
       (buttercup-junit--with-local-vars
         (let ((buttercup-junit-inner-reporter 'dummy-reporter))
